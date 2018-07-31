@@ -134,6 +134,8 @@ def single_doc(TERM, text, SA_dict, wdist, spell_check_flag,
         # aggregate data into single item
         weighted_hist_temp = [TERM, weighted_av_emotion_doc, w_av,
                               av_emotion_doc]
+        # print(weighted_hist_temp)
+        # exit(0)
         doc_words.append(passage_words)
 
     return weighted_hist_temp, doc_words

@@ -19,7 +19,7 @@ def make_sa_df(doc_data, sa_data, TERM):
     sentiment_vals = []
     for single_doc_sa_data in sa_data:
         # ensure that all data is present
-        if len(single_doc_sa_data) == 6:
+        if len(single_doc_sa_data) == 5:
             term = single_doc_sa_data[1]
             # print(term)
             # add data to dict that will become the dataframe
@@ -60,6 +60,7 @@ def plot_term_score_data(sa_df, TERM, weighted, date_range):
     print(sa_col, list(sa_df))
     print(sa_df['date'].head())
     term_df = sa_df.loc[sa_df[sa_col].notnull()]
+    print(term_df)
     print(term_df['date'].head())
     # pick out relevant years (future note: some docs have more detailed publication info)
     start_date = date_range[0]
