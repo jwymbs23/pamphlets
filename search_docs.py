@@ -1,16 +1,13 @@
 import lucene
+import numpy as np
+import string
 
-from org.apache.lucene.queryparser.classic import QueryParser
-from org.apache.lucene.search import IndexSearcher
-
-#from org.apache.lucene.analysis import IndexSearcher
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 
-from org.apache.lucene.store import FSDirectory
+#from org.apache.lucene.store import FSDirectory
 from java.nio.file import Paths
 from org.apache.lucene.index import IndexReader
-from org.apache.lucene.search import \
-        MultiPhraseQuery, PhraseQuery, DocIdSetIterator
+
 from org.apache.lucene.index import \
         IndexWriter, IndexWriterConfig, DirectoryReader
 from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory
@@ -20,23 +17,23 @@ from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory
 from java.io import File
 
 from java.io import StringReader
-from org.apache.lucene.analysis import Analyzer
-from org.apache.lucene.analysis.core import \
-        LowerCaseTokenizer, WhitespaceTokenizer
-from org.apache.lucene.analysis.tokenattributes import \
-        CharTermAttribute, OffsetAttribute, PayloadAttribute, \
-            PositionIncrementAttribute
+#from org.apache.lucene.analysis import Analyzer
+#from org.apache.lucene.analysis.core import \
+#        LowerCaseTokenizer, WhitespaceTokenizer
+#from org.apache.lucene.analysis.tokenattributes import \
+#        CharTermAttribute, OffsetAttribute, PayloadAttribute, \
+#            PositionIncrementAttribute
 from org.apache.lucene.document import Document, Field, TextField
-from org.apache.lucene.index import MultiFields, Term, PostingsEnum
+#from org.apache.lucene.index import MultiFields, Term, PostingsEnum
 from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.search import \
         MultiPhraseQuery, PhraseQuery, DocIdSetIterator
-from org.apache.lucene.search.spans import \
-        Spans, SpanNearQuery, SpanTermQuery, SpanWeight
-from org.apache.lucene.util import BytesRef
-from org.apache.pylucene.analysis import \
-        PythonAnalyzer, PythonTokenFilter, PythonTokenizer
-from org.apache.pylucene.search.spans import PythonSpanCollector
+#from org.apache.lucene.search.spans import \
+#        Spans, SpanNearQuery, SpanTermQuery, SpanWeight
+#from org.apache.lucene.util import BytesRef
+#from org.apache.pylucene.analysis import \
+#        PythonAnalyzer, PythonTokenFilter, PythonTokenizer
+#from org.apache.pylucene.search.spans import PythonSpanCollector
 
 from org.apache.lucene.search import IndexSearcher
 
@@ -101,6 +98,8 @@ def main():
     FIELD_CONTENTS = "text"
     DOC_NAME = "identifier"
     STORE_DIR = "./full_index"
+
+
     
     #take search term as command line argument
     if len(sys.argv) != 4:
@@ -129,6 +128,7 @@ def main():
     date_range = (1788, 1800)
     method = 'linear' #vs 1/x
 
+    example_flag = False
 
     if not 'sentiment_vals_w_'+TERM in list(doc_data):
         lucene.initVM()
@@ -142,16 +142,10 @@ def main():
         term_words = []
         #hits = searcher.search(query, 1)
         for hit in tqdm(docs_containing_term.scoreDocs):
-            #print(hit.score, hit.doc, hit.toString())
             doc = searcher.doc(hit.doc)
             #get the text from each document
             doc_text = doc.get("text").encode("utf-8")
-            #get term SA score for each document
             #print(doc.get(DOC_NAME))
-            example_flag = False
-            #if './OCR_text/bailleulmembredu00bail_djvu.txt' == doc.get(DOC_NAME) or './OCR_text/ladictaturerenve00feli_djvu.txt' == doc.get(DOC_NAME):
-            #print(doc_text)
-            #    example_flag = True
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
             score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)
@@ -166,16 +160,11 @@ def main():
     
     pickle.dump(term_words, open('%s_words.pkl'%TERM, 'wb'))
         
-    #print(sa_df.head(5))
-    #print(sa_df.tail(5))
-    
     #process dataframe for various properties (split this into specific functions later)
     use_weighted = True
     total_doc = False
-    a_sa.plot_term_score_data(sa_df,TERM,use_weighted, total_doc, date_range)
+    a_sa.plot_term_score_data(sa_df,TERM,use_weighted, date_range)
     
-    #pickle.dump(sa_df, open('df_sentiment.pkl', 'wb'))
-
 
 if __name__ == "__main__":
     main()
