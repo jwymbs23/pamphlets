@@ -84,6 +84,12 @@ def plot_term_score_data(sa_df, TERM, weighted, date_range):
     term_date_hist, term_date_bins = np.histogram(term_date_list,
                                                   bins=end_date - start_date,
                                                   range=d_range)
+
+    mean_by_date = term_df.groupby(u'date').mean()
+    print(mean_by_date, term_date_bins)
+    sent_list = mean_by_date.loc[term_date_bins[:-1]][sa_col].tolist()
+    print(sent_list)
+    
     plt.xlabel('Year')
     plt.ylabel('Share of Documents')
     plt.xticks(range(start_date,end_date,1))
@@ -92,13 +98,14 @@ def plot_term_score_data(sa_df, TERM, weighted, date_range):
     print(term_date_bins[:-1], term_date_hist, full_date_hist)
     mention_by_year = term_date_hist.astype(float)/full_date_hist
     plt.bar(term_date_bins[:-1], mention_by_year, width=1,
-            color=plt.cm.RdYlBu(0))
+            color=plt.cm.RdYlBu((np.asarray(sent_list) - min(sent_list))/(max(sent_list) - min(sent_list))))
     plt.tight_layout()
     # plt.rcParams['axes.facecolor']='white'
     plt.show()
 
     # SENTIMENT SCORE AND DISTRIBUTIONS BY YEAR #
-    mean_by_date = term_df.groupby(u'date').mean()
+
+    
     # std_by_date = term_df.groupby(u'date').std()
     # print(mean_by_date)
     # mean_by_date = mean_by_date.reset_index()
@@ -110,17 +117,17 @@ def plot_term_score_data(sa_df, TERM, weighted, date_range):
     ax1.ticklabel_format(useOffset=False)
 
     plt.gcf().set_facecolor('white')
-
+    
     # f, (ax1, ax2) = plt.subplots(2)
     sa_by_date = term_df.loc[(term_df['date'] >= start_date) &
                              (term_df['date'] <= end_date)]
     sa_date_mean_xlim = (start_date - 0.5, end_date + 0.5)
     sa_date_mean_ylim = (-0.5, 0.5)
-
+    
     mean_by_date.plot(use_index=True, y=sa_col, title=TERM+' mean',
-                      xlim=sa_date_mean_xlim, ylim=sa_date_mean_ylim,
+                      xlim=sa_date_mean_xlim,
                       color='red', ax=ax1)
-
+    # , ylim=sa_date_mean_ylim,
     sns.violinplot(x='date', y=sa_col, data=sa_by_date, color='green',
                    saturation=0.4, ax=ax2, inner='box', gridsize=500)
 

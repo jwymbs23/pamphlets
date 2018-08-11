@@ -1,0 +1,25 @@
+body {
+    padding-top: 10px;
+    font-size: 1.5em;
+}
+.starter-template {
+    padding: 40px 15px;
+    text-align: center;
+}
+
+
+.column {
+    float: left;
+    padding-top: 0px;
+    padding-left:10px;
+    padding-right:10px;
+    width: 100%;
+    text-align: justify;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}

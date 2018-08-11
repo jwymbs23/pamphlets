@@ -127,7 +127,7 @@ def single_doc(TERM, text, SA_dict, wdist, spell_check_flag,
             # keep track of individual passage score
             # (can be used to get sentiment variation within texts)
             w_av.append(weighted_av_emotion_single)
-
+            doc_words.append([passage_words])
         # normalize document scores by the number of TERM appearances
         av_emotion_doc /= (float(len(term_indices)))
         weighted_av_emotion_doc /= float(len(term_indices))
@@ -136,6 +136,6 @@ def single_doc(TERM, text, SA_dict, wdist, spell_check_flag,
                               av_emotion_doc]
         # print(weighted_hist_temp)
         # exit(0)
-        doc_words.append(passage_words)
-
+        
+        # doc_words.append({'wscore': weighted_av_emotion_doc, 'unwscore': av_emotion_doc})
     return weighted_hist_temp, doc_words

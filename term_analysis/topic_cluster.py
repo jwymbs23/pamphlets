@@ -4,13 +4,13 @@ import numpy as np
 import pickle
 import seaborn as sns
 
-sent_df = pickle.load(open('df_sentiment.pkl', 'rb'))
+sent_df = pickle.load(open('../pickles/3_df_sentiment.pkl', 'rb'))
 
 date_range = (1788, 1800)
 
 all_cols = list(sent_df)
 print(all_cols)
-people_cols = [col for col in all_cols if col.find(u'sentiment_vals_w') != -1 and col.find(u'voltaire') == -1 and col.find(u'rousseau') == -1]
+people_cols = [col for col in all_cols if col.find(u'sentiment_vals_w') != -1]# and col.find(u'voltaire') == -1 and col.find(u'rousseau') == -1]
 sent_dict = {}
 for person in people_cols:
     doc_count = sent_df[person].count()
@@ -113,7 +113,7 @@ for i in sent_dict:
         count_list[sort_labels[i]] += 1
     else:
         av_sentiment_change[sort_labels[i]] = sent_dict[i]
-    plt.plot(sent_dict[i][:,0], sent_dict[i][:,1], c = colors[sort_labels[i]], alpha = 0.6, lw = 1)
+    plt.plot(sent_dict[i][:,0], sent_dict[i][:,1], c = colors[sort_labels[i]], alpha = 0.8, lw = 1)
 for i in av_sentiment_change:
     plt.plot(av_sentiment_change[i][:,0]/count_list[i], av_sentiment_change[i][:,1]/count_list[i], c = colors[i], lw = 4)
 plt.show()

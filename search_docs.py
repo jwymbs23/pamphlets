@@ -125,7 +125,7 @@ def main():
     
     sa_term = []
     
-    date_range = (1788, 1800)
+    date_range = (1791, 1800)
     method = 'linear' #vs 1/x
 
     example_flag = False
@@ -142,23 +142,25 @@ def main():
         term_words = []
         #hits = searcher.search(query, 1)
         for hit in tqdm(docs_containing_term.scoreDocs):
+            print(hit)
             doc = searcher.doc(hit.doc)
             #get the text from each document
-            doc_text = doc.get("text").encode("utf-8")
-            #print(doc.get(DOC_NAME))
+            doc_text = doc.get("text")#.encode("utf-8")
+            print(doc.get(DOC_NAME))
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
             score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)
-            term_words.append(doc_words)
+            term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
             sa_doc_score = [doc.get(DOC_NAME)] + score_data
             sa_term.append(sa_doc_score)
         sa_df = a_sa.make_sa_df(doc_data, sa_term,TERM)
+        pickle.dump(term_words, open('./pickles/%s_words.pkl'%TERM, 'wb'))
     else:
         sa_df = doc_data
     
     print(sa_df)
     
-    pickle.dump(term_words, open('%s_words.pkl'%TERM, 'wb'))
+
         
     #process dataframe for various properties (split this into specific functions later)
     use_weighted = True
