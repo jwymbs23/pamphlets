@@ -17,36 +17,13 @@ from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory
 from java.io import File
 
 from java.io import StringReader
-#from org.apache.lucene.analysis import Analyzer
-#from org.apache.lucene.analysis.core import \
-#        LowerCaseTokenizer, WhitespaceTokenizer
-#from org.apache.lucene.analysis.tokenattributes import \
-#        CharTermAttribute, OffsetAttribute, PayloadAttribute, \
-#            PositionIncrementAttribute
+from org.apache.lucene.analysis.core import WhitespaceAnalyzer
+
 from org.apache.lucene.document import Document, Field, TextField
-#from org.apache.lucene.index import MultiFields, Term, PostingsEnum
 from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.search import \
         MultiPhraseQuery, PhraseQuery, DocIdSetIterator
-#from org.apache.lucene.search.spans import \
-#        Spans, SpanNearQuery, SpanTermQuery, SpanWeight
-#from org.apache.lucene.util import BytesRef
-#from org.apache.pylucene.analysis import \
-#        PythonAnalyzer, PythonTokenFilter, PythonTokenizer
-#from org.apache.pylucene.search.spans import PythonSpanCollector
-
 from org.apache.lucene.search import IndexSearcher
-
-
-
-
-#from org.apache.
-
-#, IndexReader, \
-#        TermPositionVector, File, MoreLikeThis, \
-
-
-
 
 import sys
 import sentiment_analysis.sa_text as sa
@@ -68,7 +45,7 @@ def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):
     searcher = IndexSearcher(reader)
         
     # Get the analyzer
-    analyzer = StandardAnalyzer()
+    analyzer = WhitespaceAnalyzer()
     # Constructs a query parser. We specify what field to search into.
     queryParser = QueryParser(FIELD_CONTENTS, analyzer)
     
@@ -142,11 +119,11 @@ def main():
         term_words = []
         #hits = searcher.search(query, 1)
         for hit in tqdm(docs_containing_term.scoreDocs):
-            print(hit)
+            #print(hit)
             doc = searcher.doc(hit.doc)
             #get the text from each document
             doc_text = doc.get("text")#.encode("utf-8")
-            print(doc.get(DOC_NAME))
+            #print(doc.get(DOC_NAME))
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
             score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)

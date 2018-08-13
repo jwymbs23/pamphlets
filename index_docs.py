@@ -7,7 +7,7 @@ from org.apache.lucene.analysis.core import WhitespaceAnalyzer
 from org.apache.lucene.analysis.miscellaneous import LimitTokenCountAnalyzer
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.document import \
-        Document, Field, StoredField, StringField, TextField
+        Document, Field, StoredField, StringField, TextField, FieldType
 from org.apache.lucene.index import \
         IndexOptions, IndexWriter, IndexWriterConfig, DirectoryReader, \
             MultiFields, Term
@@ -18,7 +18,7 @@ from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory
 def getWriter(store, analyzer=None, create=False):
     if analyzer is None:
         analyzer = WhitespaceAnalyzer()
-    analyzer = LimitTokenCountAnalyzer(analyzer, 10000)
+    analyzer = LimitTokenCountAnalyzer(analyzer, 10000000)
     config = IndexWriterConfig(analyzer)
     if create:
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
@@ -52,6 +52,13 @@ def main():
     #get list of documents
     doc_list = getDoclist(DOCUMENTS_DIR)
 
+
+    ftype = FieldType()
+    ftype.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
+    ftype.setTokenized(True)
+    ftype.setStoreTermVectors(True)
+    ftype.freeze()
+    
     for cd, doc_name in enumerate(doc_list):
         if not cd%1000:
             print(cd, '--', len(doc_list))
@@ -64,8 +71,8 @@ def main():
                 
                 # Add fields to this document
                 #could process fname here instead of in the dataframe later 
-                doc.add(Field("identifier", doc_name, TextField.TYPE_STORED))#Store.YES))#, Field.Index.ANALYZED))
-                doc.add(Field("text", full_text, TextField.TYPE_STORED))#Store.YES))#, Field.Index.ANALYZED))
+                doc.add(Field("identifier", doc_name.split('/')[-1], TextField.TYPE_STORED))#Store.YES))#, Field.Index.ANALYZED))
+                doc.add(Field("text", full_text, ftype))#TextField.TYPE_STORED, TermVector.YES, ))#Store.YES))#, Field.Index.ANALYZED))
                 
                 # Add the document to the index
                 writer.addDocument(doc)
