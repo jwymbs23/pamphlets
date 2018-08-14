@@ -26,11 +26,11 @@ from org.apache.lucene.search import TermQuery
 
 
 import sys
-#import sentiment_analysis.sa_text as sa
-#import sentiment_analysis.analyze_sa as a_sa
-from tqdm import tqdm
+from collections import Counter
+
 import pickle
-#from text_cleaning.stopwords import *
+
+
 
 
 
@@ -84,13 +84,16 @@ def main():
                     
         
 
-    date_range = (1786,1805)
+    date_range = (1792,1793)
     full_df = get_full_df()
     
     for year in range(date_range[0], date_range[1]):
         docs_in_year = get_docs_in_year(full_df, year)
-        print(docs_in_year)
-        for doc_id in docs_in_year:
+        #print(docs_in_year)
+        year_dict = Counter({})
+        for cd, doc_id in enumerate(docs_in_year):
+            if not cd%100:
+                print(cd , '--', len(docs_in_year))
             # get document (query by id)
             q = TermQuery(Term("identifier", doc_id+'_djvu.txt'))
             topDocs = searcher.search(q, 50)
@@ -98,20 +101,23 @@ def main():
             #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
             one_doc = topDocs.scoreDocs[0].doc
             doc_name = searcher.doc(one_doc)
-            print(doc_name, doc_id)
+            #print(doc_name, doc_id)
             termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, "text")
+            terms = []
+            freqs = []
             if termvec != None:
                 #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
-                terms = []
-                freqs = []
+
                 termsEnum = termvec.iterator()
                 for term in BytesRefIterator.cast_(termsEnum):
                     terms.append(term.utf8ToString())
                     freqs.append(termsEnum.totalTermFreq())
                 #terms.sort()
-                td = {i:j for i,j in zip(terms,freqs)}
-                print(td)
-                print('\n\n')
+                doc_dict = Counter({i:j for i,j in zip(terms,freqs) if j > 3})
+            year_dict = year_dict + doc_dict
+        print(year_dict.most_common(1000))
+        print('\n\n')
+
     #print(ireader)
     #terms = isearcher.terms() #Returns TermEnum
     #print(terms)
@@ -157,7 +163,7 @@ def main():
         print( 'Calculating sentiment scores...')
         term_words = []
         #hits = searcher.search(query, 1)
-        for hit in tqdm(docs_containing_term.scoreDocs):
+        for hit in docs_containing_term.scoreDocs:
             print(hit)
             doc = searcher.doc(hit.doc)
             #get the text from each document
