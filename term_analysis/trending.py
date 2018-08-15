@@ -29,7 +29,7 @@ import sys
 from collections import Counter
 
 import pickle
-
+import glob
 
 
 
@@ -82,45 +82,139 @@ def main():
 
     searcher = IndexSearcher(ireader)#self.getSearcher()
                     
+    pickle_file = glob.glob('full_word_list.pkl')
+    print(pickle_file)
+    date_range = (1785,1805)
+    if not pickle_file:
         
 
-    date_range = (1792,1793)
-    full_df = get_full_df()
-    
-    for year in range(date_range[0], date_range[1]):
-        docs_in_year = get_docs_in_year(full_df, year)
-        #print(docs_in_year)
-        year_dict = Counter({})
-        for cd, doc_id in enumerate(docs_in_year):
-            if not cd%100:
-                print(cd , '--', len(docs_in_year))
-            # get document (query by id)
-            q = TermQuery(Term("identifier", doc_id+'_djvu.txt'))
-            topDocs = searcher.search(q, 50)
-            
-            #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
-            one_doc = topDocs.scoreDocs[0].doc
-            doc_name = searcher.doc(one_doc)
-            #print(doc_name, doc_id)
-            termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, "text")
+        full_df = get_full_df()
+        full_term_data = []
+        for year in range(date_range[0], date_range[1]):
+            docs_in_year = get_docs_in_year(full_df, year)
+            #print(docs_in_year)
+            year_dict = Counter({})
             terms = []
             freqs = []
-            if termvec != None:
+            print(year)
+            for cd, doc_id in enumerate(docs_in_year):
+                #if not cd%100:
+                #    print(cd , '--', len(docs_in_year))
+                # get document (query by id)
+                q = TermQuery(Term("identifier", doc_id+'_djvu.txt'))
+                topDocs = searcher.search(q, 50)
+                
                 #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
-
-                termsEnum = termvec.iterator()
-                for term in BytesRefIterator.cast_(termsEnum):
-                    terms.append(term.utf8ToString())
-                    freqs.append(termsEnum.totalTermFreq())
-                #terms.sort()
-                doc_dict = Counter({i:j for i,j in zip(terms,freqs) if j > 3})
-            year_dict = year_dict + doc_dict
-        print(year_dict.most_common(1000))
-        print('\n\n')
-
-    #print(ireader)
-    #terms = isearcher.terms() #Returns TermEnum
-    #print(terms)
+                one_doc = topDocs.scoreDocs[0].doc
+                doc_name = searcher.doc(one_doc)
+                #print(doc_name, doc_id)
+                termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, "text")
+                if termvec != None:
+                    #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
+    
+                    termsEnum = termvec.iterator()
+                    for term in BytesRefIterator.cast_(termsEnum):
+                        terms.append(term.utf8ToString())
+                        freqs.append(termsEnum.totalTermFreq())
+                    #terms.sort()
+            for term,freq in zip(terms, freqs):
+                try:
+                    year_dict[term] += freq
+                except:
+                    year_dict[term] = freq
+            print(len(year_dict))
+            for term in list(year_dict):
+                if year_dict[term] < 5:
+                    year_dict.pop(term)
+            full_term_data.append(year_dict)
+            print(len(year_dict))
+            #year_dict = year_dict + doc_dict
+            #print(year_dict.most_common(1000))
+            print('\n\n')
+    
+        pickle.dump(full_term_data, open('full_word_list.pkl', 'wb'))
+    else:
+        full_term_data = pickle.load(open('full_word_list.pkl', 'rb'))
+        # get complete list of unique words
+        word_list = set()
+        for year_dict in full_term_data:
+            print(len(word_list))
+            word_list.update(set(list(year_dict)))
+        print(len(word_list))
+    
+    
+        
+        # fill in missing entries
+        for cy in range(len(full_term_data)):
+            for word in word_list:
+                if word not in full_term_data[cy]:
+                    full_term_data[cy][word] = 1
+        # for year_dict in full_term_data:
+            # print(len(year_dict))
+    
+        # get word list mean and stdevs
+        word_list_dict = {}
+        for word in word_list:
+            word_freqs = []
+            for year_dict in full_term_data:
+                word_freqs.append(year_dict[word])
+            word_list_dict[word] = (np.mean(word_freqs), np.std(word_freqs))
+    
+        # calculate z-score for each word for each year
+        zscore_dict = {}
+        for year_dict in full_term_data:
+            for word in word_list:
+                if word == 'robespierre':
+                    print(word, year_dict[word], word_list_dict[word][0], word_list_dict[word][1])
+                try:
+                    zscore_dict[word].append((year_dict[word]))# / word_list_dict[word][0]))
+                except:
+                    zscore_dict[word] = [(year_dict[word])]# / word_list_dict[word][0])]
+    
+        # find biggest jumps in a given year
+        top_n = 20
+        top_in_year = [[0 for i in range(top_n+1)] for j in range(date_range[1] - date_range[0]+1)]
+        top_words_year = [[None for i in range(top_n+1)] for j in range(date_range[1] - date_range[0]+1)]
+        for year in range(date_range[0], date_range[1]-1):
+            for word in word_list:
+                yc = year - date_range[0]
+                if zscore_dict[word][yc+1] > 500:
+                    zscore_diff = zscore_dict[word][yc + 1] / zscore_dict[word][yc]
+                    top_in_year[yc][0] = zscore_diff
+                    top_words_year[yc][0] = word
+                    #print(zscore_diff)
+                    sort_id = 0
+                    #print(yc, sort_id, top_in_year)
+                    # print(word)
+                    while  top_in_year[yc][sort_id] > top_in_year[yc][sort_id+1]:
+                        #print(top_in_year, sort_id)
+    
+                        tmp = top_in_year[yc][sort_id+1]
+                        top_in_year[yc][sort_id+1] = top_in_year[yc][sort_id]
+                        top_in_year[yc][sort_id] = tmp
+                        
+                        tmp_word = top_words_year[yc][sort_id+1]
+                        # print(tmp_word, top_words_year, top_words_year[yc][sort_id+1])
+                        top_words_year[yc][sort_id+1] = top_words_year[yc][sort_id]
+                        top_words_year[yc][sort_id] = tmp_word
+    
+                        sort_id += 1
+                        # print(sort_id, top_words_year[yc])
+                        if sort_id == top_n:
+                            break
+                    # print(sort_id, word)
+                    # print(word, sort_id)
+                    # print(top_words_year[yc], top_in_year[yc])
+                    #top_words_year[yc][sort_id] = word
+                    # print(top_words_year[yc], top_in_year[yc])
+                    # input()
+            print(year+1, top_words_year[yc], '\n')#, top_in_year[yc])
+            # for word in top_words_year[yc]:
+                # print(zscore_dict[word][yc+1] - zscore_dict[word][yc])
+        #print(zscore_dict['robespierre'])
+        #print(ireader)
+        #terms = isearcher.terms() #Returns TermEnum
+        #print(terms)
     exit(0)
     
     #take search term as command line argument
