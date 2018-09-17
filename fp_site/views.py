@@ -68,6 +68,16 @@ def term_details(term):
     return render_template('term_details.html', term=term, top_term_dict=top_term_dict, bot_term_dict=bot_term_dict)
 
 
+@app.route('/trending', methods = ['GET', 'POST'])
+def trending_page():
+    trending_data = pickle.load(open('./pickles/trending_ratio.pkl', 'rb'))
+    print(trending_data)
+    years = [i[0] for i in trending_data]
+    trending_terms = [i[1:] for i in trending_data]
+    n_years = len(years)-2
+    return render_template('trending.html', years=years, n_years=n_years, trending_terms=trending_terms)
+
+
 
 @app.route('/output', methods = ['GET', 'POST'])
 def output():
@@ -83,7 +93,7 @@ def output():
     #terms = flask.request.values.get('terms')
     print('terms:', checked_terms)
     weight_flag = True
-    date_range = (1786,1800)
+    date_range = (1786,1801)
     
     checked_term_dict = get_sent_dict(sent_df, checked_terms, weight_flag, date_range)
 

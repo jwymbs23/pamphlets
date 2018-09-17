@@ -31,6 +31,7 @@ from collections import Counter
 import pickle
 import glob
 
+from stopwords import *
 
 
 
@@ -148,7 +149,7 @@ def main():
         for cy in range(len(full_term_data)):
             for word in word_list:
                 if word not in full_term_data[cy]:
-                    full_term_data[cy][word] = 1
+                    full_term_data[cy][word] = 0
         # for year_dict in full_term_data:
             # print(len(year_dict))
     
@@ -162,59 +163,66 @@ def main():
     
         # calculate z-score for each word for each year
         zscore_dict = {}
+        year_total = []
         for year_dict in full_term_data:
+            total = 0
             for word in word_list:
+                total += year_dict[word]
                 if word == 'robespierre':
                     print(word, year_dict[word], word_list_dict[word][0], word_list_dict[word][1])
                 try:
                     zscore_dict[word].append((year_dict[word]))# / word_list_dict[word][0]))
                 except:
                     zscore_dict[word] = [(year_dict[word])]# / word_list_dict[word][0])]
-    
+            year_total.append(total)
         # find biggest jumps in a given year
         top_n = 20
         top_in_year = [[0 for i in range(top_n+1)] for j in range(date_range[1] - date_range[0]+1)]
         top_words_year = [[None for i in range(top_n+1)] for j in range(date_range[1] - date_range[0]+1)]
         for year in range(date_range[0], date_range[1]-1):
             for word in word_list:
-                yc = year - date_range[0]
-                if zscore_dict[word][yc+1] > 500:
-                    zscore_diff = zscore_dict[word][yc + 1] / zscore_dict[word][yc]
-                    top_in_year[yc][0] = zscore_diff
-                    top_words_year[yc][0] = word
-                    #print(zscore_diff)
-                    sort_id = 0
-                    #print(yc, sort_id, top_in_year)
-                    # print(word)
-                    while  top_in_year[yc][sort_id] > top_in_year[yc][sort_id+1]:
-                        #print(top_in_year, sort_id)
-    
-                        tmp = top_in_year[yc][sort_id+1]
-                        top_in_year[yc][sort_id+1] = top_in_year[yc][sort_id]
-                        top_in_year[yc][sort_id] = tmp
-                        
-                        tmp_word = top_words_year[yc][sort_id+1]
-                        # print(tmp_word, top_words_year, top_words_year[yc][sort_id+1])
-                        top_words_year[yc][sort_id+1] = top_words_year[yc][sort_id]
-                        top_words_year[yc][sort_id] = tmp_word
-    
-                        sort_id += 1
-                        # print(sort_id, top_words_year[yc])
-                        if sort_id == top_n:
-                            break
-                    # print(sort_id, word)
-                    # print(word, sort_id)
-                    # print(top_words_year[yc], top_in_year[yc])
-                    #top_words_year[yc][sort_id] = word
-                    # print(top_words_year[yc], top_in_year[yc])
-                    # input()
+                if len(word) > 3:
+                    yc = year - date_range[0]
+                    if zscore_dict[word][yc] > 50 and word not in stopwords:
+                        zscore_diff = ((zscore_dict[word][yc + 1]) / (zscore_dict[word][yc]))#/word_list_dict[word][0]
+                        top_in_year[yc][0] = zscore_diff
+                        top_words_year[yc][0] = word
+                        #print(zscore_diff)
+                        sort_id = 0
+                        #print(yc, sort_id, top_in_year)
+                        # print(word)
+                        while  top_in_year[yc][sort_id] > top_in_year[yc][sort_id+1]:
+                            #print(top_in_year, sort_id)
+        
+                            tmp = top_in_year[yc][sort_id+1]
+                            top_in_year[yc][sort_id+1] = top_in_year[yc][sort_id]
+                            top_in_year[yc][sort_id] = tmp
+                            
+                            tmp_word = top_words_year[yc][sort_id+1]
+                            # print(tmp_word, top_words_year, top_words_year[yc][sort_id+1])
+                            top_words_year[yc][sort_id+1] = top_words_year[yc][sort_id]
+                            top_words_year[yc][sort_id] = tmp_word
+        
+                            sort_id += 1
+                            # print(sort_id, top_words_year[yc])
+                            if sort_id == top_n:
+                                break
+                        # print(sort_id, word)
+                        # print(word, sort_id)
+                        # print(top_words_year[yc], top_in_year[yc])
+                        #top_words_year[yc][sort_id] = word
+                        # print(top_words_year[yc], top_in_year[yc])
+                        # input()
+            top_words_year[yc][0] = year+1
             print(year+1, top_words_year[yc], '\n')#, top_in_year[yc])
+            
             # for word in top_words_year[yc]:
                 # print(zscore_dict[word][yc+1] - zscore_dict[word][yc])
         #print(zscore_dict['robespierre'])
         #print(ireader)
         #terms = isearcher.terms() #Returns TermEnum
         #print(terms)
+    pickle.dump(top_words_year, open('trending_ratio.pkl', 'wb'))
     exit(0)
     
     #take search term as command line argument

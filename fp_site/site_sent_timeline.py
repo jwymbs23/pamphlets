@@ -2,6 +2,9 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 
+from matplotlib.collections import LineCollection
+from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
@@ -69,9 +72,9 @@ def gen_plot(sent_dict, terms, date_range):
     plist = []
     terms = list(sent_dict)
     fig, ax = plt.subplots(figsize=(8, 5))
-    fig.set_facecolor('xkcd:ecru')
     #plt.rcParams['figure.facecolor'] = 'grey'
     terms = sorted(terms)[::-1]
+    patches = []
     for tc, term in enumerate(terms):
         print(term)
         t_data = sent_dict[term]
@@ -84,14 +87,35 @@ def gen_plot(sent_dict, terms, date_range):
         # sent_color = (np.asarray(sentiment) - gmin)/(gmax - gmin)
         maxsent = np.nanmax(sentiment)
         minsent = np.nanmin(sentiment)
-        sent_color = (np.asarray(sentiment) - minsent)/(maxsent - minsent)
+        sent_color = (np.asarray(sentiment) - minsent)/(maxsent - minsent)*0.5
         # print(sentiment, np.nanmin(sentiment),np.nanmax(sentiment))
         # plt.scatter(dates, yval, s=n_docs, color=plt.cm.RdYlBu(sent_color),zorder=1)
-        for cd,date in enumerate(range(date_range[0], date_range[1])):
-            #print(date, n_docs, len(n_docs))
-            plt.hlines(tc, date-0.01, date+1.01, colors=plt.cm.seismic(1-sent_color[cd]), lw=np.sqrt(n_docs[cd]*0.9))
-    
-        plist.append(term)
+        for cd,date in enumerate(range(date_range[0], date_range[1]-1)):
+            # print(date, n_docs, len(n_docs))
+            # plt.hlines(tc, date-0.01, date+1.01, colors=plt.cm.seismic(1-sent_color[cd]), lw=np.sqrt(n_docs[cd]*0.9))
+            x = np.asarray([date,date+1])
+            y = (sent_color[cd+1] - sent_color[cd])*(x) + (sent_color[cd] - (date)*(sent_color[cd+1] - sent_color[cd])) + tc
+            print('y - ', y)
+            print('x - ', x)
+            lwidths = np.sqrt((n_docs[cd+1] - n_docs[cd])*(x-date) + n_docs[cd])*0.005
+            points = np.array([x, y]).T.reshape(-1, 1, 2)
+            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            # vlines, ok but bumpy edges and overlapping vlines
+            #ax.vlines(x, y-lwidths*0.5*0.02, y+lwidths*0.5*0.02, lw=0.7)
+            # better but the linewidth is normal to the line direction, not the x-axis (so there are strange corners)
+            #lc = LineCollection(segments, linewidths=lwidths, color='k')
+            #ax.add_collection(lc)
+            # polygons
+            #for i in range(N):
+            polygon = Polygon([ [date,y[0]+lwidths[0]], [date+1.007,y[1]+lwidths[1]], [date+1.007,y[1]-lwidths[1]], [date,y[0]-lwidths[0]] ], True)
+            patches.append(polygon)
+            
+            #colors = 100*np.random.rand(len(patches))
+
+        plist.append(term) 
+    p = PatchCollection(patches)
+    #p.set_array(np.array(colors))
+    ax.add_collection(p)               
     plt.yticks(range(0,len(plist)),plist,rotation=0)
     
     # timeline info
@@ -112,15 +136,14 @@ def gen_plot(sent_dict, terms, date_range):
         plt.axvline(gov_dates[cg+1], ymin = 0.05, color = 'k')
         plt.text((gov_dates[cg] + gov_dates[cg+1])/2, timeline_y+0.1, gov_type, ha='center')
     plt.xlim((date_range[0], date_range[1]))
-    plt.ylim((-len(terms)*0.2,len(terms)-0.8))
+    plt.ylim((-len(terms)*0.2,len(terms)-0.3))
     plt.tight_layout()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
-
-    #ax.set_facecolor('xkcd:ecru')
-    
+    ax.yaxis.grid(which='major')
+    # ax.set_facecolor('xkcd:ecru')
 
     plt.savefig('tmp.png', facecolor = fig.get_facecolor(), transparent = True)
 
