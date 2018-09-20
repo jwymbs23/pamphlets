@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../../favicon.ico">
+
+
+  <!-- Bootstrap core CSS -->
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .vega-actions a {
+        margin-right: 12px;
+        color: #757575;
+        font-weight: normal;
+        font-size: 13px;
+    }
+    .error {
+        color: red;
+    }
+
+    .nav:link, .nav:visited {
+    background-color: #D3D3D3;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    }
+
+
+    .nav:hover, .nav:active {
+    background-color: #A9A9A9;
+    }
+
+  </style>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <!-- <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+  <!-- Custom styles for this template -->
+  <link href="../static/css/home.css" rel="stylesheet">
+
+  <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <!--<script src="../../assets/js/ie-emulation-modes-warning.js"></script>-->
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  
+  <title>French pamphlets</title>
+  <center>
+    <h1>pamphlets</h1>
+    <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a>
+
+  </center>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.6.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-embed@3.14"></script>
+
+
+
+  <hr size="200">
+  <center>
+    <div id="nav">
+      {% for lyear in range(n_years) %}
+      {% if years[lyear] == year|int %}
+      {{years[lyear]}} &nbsp;
+      {% else %}
+      <a class="nav" href="/trending_year/{{years[lyear]}}">{{years[lyear]}}</a>&nbsp;
+      {% endif %}
+      {% endfor %}
+    </div>
+    <hr size="200" style="margin-top: 0.0em;">
+    
+    <div id="vis"></div>
+  </center>
+  <!--  <script type="text/javascript" src="{{ url_for('static', filename='trending_{{year}}.js') }}"></script> -->
+  <script type="text/javascript" src="/static/trending_{{year}}.js"></script> 
+  
+  
+  
+  <script type="text/javascript">
+    var spec = trending_data
+    var embed_opt = {"mode": "vega-lite"};
+
+    function showError(el, error){
+        el.innerHTML = ('<div class="error">'
+                        + '<p>JavaScript Error: ' + error.message + '</p>'
+                        + "<p>This usually means there's a typo in your chart specification. "
+                        + "See the javascript console for the full traceback.</p>"
+                        + '</div>');
+        throw error;
+    }
+    const el = document.getElementById('vis');
+    vegaEmbed("#vis", spec, embed_opt)
+      .catch(error => showError(el, error));
+  </script>
+</body>
+</html>

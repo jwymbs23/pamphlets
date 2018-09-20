@@ -39,5 +39,5 @@ for year in top_term_year:
     )
     
     chart = (legend | scatter)
-    chart.save('trending_'+str(year[0]) + '.html')
+    chart.save('trending_'+str(year[0]) + '.json')
 

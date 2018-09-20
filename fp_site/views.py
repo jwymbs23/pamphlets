@@ -74,8 +74,16 @@ def trending_page():
     print(trending_data)
     years = [i[0] for i in trending_data]
     trending_terms = [i[1:] for i in trending_data]
-    n_years = len(years)-2
+    n_years = len(years)-1
     return render_template('trending.html', years=years, n_years=n_years, trending_terms=trending_terms)
+
+
+@app.route('/trending_year/<year>', methods=['GET', 'POST'])
+def trending_year(year):
+    trending_data = pickle.load(open('./pickles/trending_ratio.pkl', 'rb'))
+    years = [i[0] for i in trending_data]
+    n_years = len(years)-1
+    return render_template('trending_year.html', year=year, years=years, n_years=n_years)
 
 
 
