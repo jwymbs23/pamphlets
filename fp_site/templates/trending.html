@@ -47,29 +47,24 @@
     <center>
       <h1>pamphlets</h1>
       <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a>  
-      
-    </center>
-  </head>
-  <body>
 
+      <hr size="200">
 
-
-    <hr size="200">
-    <center>
       <div id="nav">
 	{% for lyear in range(n_years) %}
-	{% if years[lyear] == year|int %}
-	{{years[lyear]}} &nbsp;
-	{% else %}
 	<a class="nav" href="/trending_year/{{years[lyear]}}">{{years[lyear]}}</a>&nbsp;
-	{% endif %}
 	{% endfor %}
       </div>
       <hr size="200" style="margin-top: 0.0em;">
 
       <div id="vis"></div>
     </center>
-    
+
+  </head>
+  <body>
+
+
+
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     
     <script src="../static/js/bootstrap.min.js"></script>
