@@ -221,9 +221,9 @@ def tfidf_method(full_term_data, date_range):
 
 def main():
     #constants
-    FIELD_CONTENTS = "text"
+    FIELD_CONTENTS = "vectext"
     DOC_NAME = "identifier"
-    STORE_DIR = "../full_index"
+    STORE_DIR = "../full_index1"
 
     lucene.initVM()
     store = SimpleFSDirectory(Paths.get(STORE_DIR))    
@@ -236,7 +236,7 @@ def main():
     pickle_file = glob.glob('full_word_list.pkl')
     print(pickle_file)
     date_range = (1785,1805)
-    if not pickle_file:
+    if 1:#not pickle_file:
         
 
         full_df = get_full_df()
@@ -259,7 +259,8 @@ def main():
                 one_doc = topDocs.scoreDocs[0].doc
                 doc_name = searcher.doc(one_doc)
                 #print(doc_name, doc_id)
-                termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, "text")
+                termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, FIELD_CONTENTS)
+
                 if termvec != None:
                     #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
     
@@ -267,7 +268,7 @@ def main():
                     for term in BytesRefIterator.cast_(termsEnum):
                         terms.append(term.utf8ToString())
                         freqs.append(termsEnum.totalTermFreq())
-                    #terms.sort()
+
             for term,freq in zip(terms, freqs):
                 try:
                     year_dict[term] += freq

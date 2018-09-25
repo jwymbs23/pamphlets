@@ -37,7 +37,7 @@ def getDoclist(DOCUMENTS_DIR):
 
 
 def main():
-    INDEX_DIR = "full_index"
+    INDEX_DIR = "full_index1"
     DOCUMENTS_DIR = "/media/joseph/Windows8_OS/Users/Joseph/AppData/Local/lxss/home/jwymbs23/data_science_projects/french_pamphlets/frc-data-master/OCR_text/"
     # Initialize lucene and JVM
     lucene.initVM(vmargs=['-Djava.awt.headless=true'])
@@ -72,8 +72,8 @@ def main():
                 # Add fields to this document
                 #could process fname here instead of in the dataframe later 
                 doc.add(Field("identifier", doc_name.split('/')[-1], TextField.TYPE_STORED))#Store.YES))#, Field.Index.ANALYZED))
-                doc.add(Field("text", full_text, ftype))#TextField.TYPE_STORED, TermVector.YES, ))#Store.YES))#, Field.Index.ANALYZED))
-                
+                doc.add(Field("vectext", full_text, ftype))#TextField.TYPE_STORED, TermVector.YES, ))#Store.YES))#, Field.Index.ANALYZED))
+                doc.add(Field("text", full_text, TextField.TYPE_STORED))
                 # Add the document to the index
                 writer.addDocument(doc)
             except:

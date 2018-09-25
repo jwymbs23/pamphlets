@@ -11,12 +11,12 @@ def display_texts(term):
     text_list = pickle.load(open('./pickles/'+term+'_words.pkl', 'rb'))
     SA = pickle.load(open('./pickles/3_sentiment_dictionary_stem_FEEL.pkl', 'rb'))
     sent_df = pickle.load(open('./pickles/3_df_sentiment.pkl','rb'))
-    print(list(sent_df))
-    term_df = sent_df.loc[sent_df['identifier_'+term].notnull()]
-    print(len(term_df))
+    # print(list(sent_df))
+    term_df = pickle.load(open('./pickles/'+term+'_df.pkl', 'rb'))#sent_df.loc[sent_df['identifier_'+term].notnull()]
+    # print(len(term_df))
     top_doc_dict = {}
     bot_doc_dict = {}
-    #print(text_list)
+    # print(text_list)
     top_5 = term_df.nlargest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
     bottom_5 = term_df.nsmallest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
     print(top_5, bottom_5)

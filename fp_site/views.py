@@ -1,64 +1,79 @@
-from flask import render_template
-from flask import make_response
-from fp_site import app
-#from sqlalchemy import create_engine
-#from sqlalchemy_utils import database_exists, create_database
-import pandas as pd
-#import psycopg2
-#from flask import request
 import flask
+from flask import render_template, make_response, Response, redirect
+
+
+from fp_site import app
 from fp_site.site_sent_timeline import get_sent_dict
 from fp_site.site_sent_timeline import gen_plot
 from fp_site.sa_detailed_view import display_texts
+from fp_site.new_term import add_new_term
+from fp_site.new_term import define_search_params
+
 import pickle
 import base64
-
-from sklearn.externals import joblib
-
+import time
 import random
-import urllib.parse
 import datetime
+import itertools
+import glob
+
+import urllib.parse
 from io import BytesIO
 
 import matplotlib
 matplotlib.use('Agg')    
-
 import matplotlib.pyplot as plt
 
-import itertools
+import lucene
+from java.nio.file import Paths
+from org.apache.lucene.index import \
+            IndexWriter, IndexWriterConfig, DirectoryReader, IndexReader, MultiFields
+from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory
+from java.io import File
+from java.io import StringReader
+from org.apache.lucene.analysis.core import WhitespaceAnalyzer
+from org.apache.lucene.document import Document, Field, TextField
+from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.search import \
+            MultiPhraseQuery, PhraseQuery, DocIdSetIterator
+from org.apache.lucene.search import IndexSearcher
 
-#@app.route('/')
-#def home_page():
-#    return render_template("home.html")
-
-# @app.route('/home')
-# def slides():
-#     return render_template("slides.html")
-
-# @app.route('/about')
-# def about():
-#     return render_template("about.html")
 
 
 
+@app.before_first_request
+def load_index():
+    global vm, searcher, reader
+    vm = lucene.initVM()
+
+    FIELD_CONTENTS = "text"
+    DOC_NAME = "identifier"
+    STORE_DIR = "./full_index1"            
+    store = SimpleFSDirectory(Paths.get(STORE_DIR))
+    reader = DirectoryReader.open(store)
+    searcher = IndexSearcher(reader)
+
+            
 
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
     sent_df = pickle.load(open('./pickles/3_df_sentiment.pkl', 'rb'))
-    cols = list(sent_df)
-    print(cols)
-    print('.')
-    term_cols = [term.split('_')[-1] for term in cols if term.find('sentiment_vals_unw') == 0]
+    #cols = list(sent_df)
+    
+    #term_cols = [term.split('_')[-1] for term in cols if term.find('sentiment_vals_unw') == 0]
+    #term_cols = sorted(term_cols)
+
+    pickle_list = glob.glob('./pickles/*df.pkl')
+    term_cols = [term[10:-7] for term in pickle_list]
     term_cols = sorted(term_cols)
     print(term_cols)
         
     return render_template("home.html", terms=term_cols)
 
 
-# @app.route('/example', methods=['GET', 'POST'])
-# def example_page():
-#     pub_names = sorted(list(id_to_pub.values()))
-#     return render_template("example.html", publications = pub_names)
+@app.route('/insights')
+def insights():
+    return render_template("insights.html")
 
 @app.route('/term_details/<term>', methods=['GET', 'POST'])
 def term_details(term):
@@ -90,12 +105,17 @@ def trending_year(year):
 @app.route('/output', methods = ['GET', 'POST'])
 def output():
     sent_df = pickle.load(open('./pickles/3_df_sentiment.pkl', 'rb'))
-    cols = list(sent_df)
-    print(cols)
-    print('.')
-    term_cols = [term.split('_')[-1] for term in cols if term.find('sentiment_vals_unw') == 0]
-    print(term_cols)
+    #cols = list(sent_df)
+    #print(cols)
+    #print('.')
+    #term_cols = [term.split('_')[-1] for term in cols if term.find('sentiment_vals_unw') == 0]
+    #print(term_cols)
+    #term_cols = sorted(term_cols)
+
+    pickle_list = glob.glob('./pickles/*df.pkl')
+    term_cols = [term[10:-7] for term in pickle_list]
     term_cols = sorted(term_cols)
+
     checked_terms = flask.request.form.getlist('terms')
     # get list of terms to plot
     #terms = flask.request.values.get('terms')
@@ -116,4 +136,43 @@ def output():
 
     figdata_png_target = base64.b64encode(figdata_png_target)
 
-    return render_template("output.html", terms=term_cols, img_data_target=urllib.parse.quote(figdata_png_target))
+    return render_template("output.html", terms=term_cols, checked_terms=checked_terms,
+                           img_data_target=urllib.parse.quote(figdata_png_target))
+
+
+@app.route('/new_term', methods=['GET', 'POST'])
+def new_term():
+    return render_template("new_term.html")
+
+
+
+@app.route('/progress')
+def progress():
+    def generate():
+        print()
+        x = 0
+        while x < 100:
+            print(x)
+            x = x + 1
+            time.sleep(0.2)
+            yield "data:" + str(x) + "\n\n"
+    return Response(generate(term), mimetype= 'text/event-stream')
+        
+
+
+@app.route('/add_new_term', methods=['GET', 'POST'])
+def add_new_term_page():
+    term = flask.request.form['term']
+    if len(term.split()) > 2:
+        return redirect("new_term")
+    else:
+        vm.attachCurrentThread()
+        # make sure term doesn't appear in too many documents
+        doc_list = get_doc_list()
+        if len(doc_list) > 10000:
+            return render_template("high_frequency_word.html")
+        elif len(doc_list) < 10:
+            return render_template("low_frequency_word.html")
+        else:
+            add_new_term(term, searcher=searcher, reader=reader)
+    return render_template("add_new_term.html", term=term)

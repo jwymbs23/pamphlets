@@ -34,7 +34,7 @@ import glob
 
 
 
-def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):
+def define_search_params(STORE_DIR, FIELD_CONTENTS):
     
     #indexPath = File(STORE_DIR).toPath()
     #indexDir = FSDirectory.open(indexPath)
@@ -44,14 +44,12 @@ def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):
     searcher = IndexSearcher(reader)
         
     # Get the analyzer
-    analyzer = WhitespaceAnalyzer()
+    # analyzer = WhitespaceAnalyzer()
  
     # Constructs a query parser. We specify what field to search into.
-    queryParser = QueryParser(FIELD_CONTENTS, analyzer)
+    # queryParser = QueryParser(FIELD_CONTENTS, analyzer)
     
-    # Create the query
-    query = queryParser.parse(TERM)
-    return searcher, reader, query
+    return searcher, reader
 
 
 
@@ -70,23 +68,11 @@ def get_doc_df(remake_df = True):
         return pickle.load(open('./pickles/3_df_sentiment.pkl','rb'))
  
 
-def main():
+def add_new_term(TERM, searcher, reader, remake_df=False, window_size=30):
     #constants
     FIELD_CONTENTS = "text"
     DOC_NAME = "identifier"
     STORE_DIR = "./full_index1"
-
-
-    
-    #take search term as command line argument
-    if len(sys.argv) != 4:
-        print('Format should be: python search_docs.py, [term to search for], redo? y/n, window_size')
-        exit(0)
-    
-    #parse user input
-    TERM = sys.argv[1]
-    remake_df = True if sys.argv[2] == 'y' else False
-    window_size = int(sys.argv[3])
 
     #other options
     stem_flag = True
@@ -98,7 +84,7 @@ def main():
     #get dictionary
     SA_dict = get_dict(stem_flag)
 
-    print('Searching for: "'+TERM+'"')
+    # print('Searching for: "'+TERM+'"')
     
     sa_term = []
     
@@ -108,20 +94,32 @@ def main():
     example_flag = False
 
     # if not 'sentiment_vals_w_'+TERM in list(doc_data):
-    if 1:# not glob.glob('./pickles/%s_df.pkl'%TERM):
-        lucene.initVM()
-        searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
+    if not glob.glob('./pickles/%s_df.pkl'%TERM):
 
-        fieldInfos = MultiFields.getMergedFieldInfos(reader)
-        print(fieldInfos)
-        for fieldInfo in fieldInfos.iterator():
-            print(fieldInfo.name)
+        # Get the analyzer
+        analyzer = WhitespaceAnalyzer()
+        
+        # Constructs a query parser. We specify what field to search into.
+        queryParser = QueryParser(FIELD_CONTENTS, analyzer)
+        
+        # Create the query
+        query = queryParser.parse(TERM)
+
+
+        
+        #lucene.initVM()
+        #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
+
+        # fieldInfos = MultiFields.getMergedFieldInfos(reader)
+        # print(fieldInfos)
+        # for fieldInfo in fieldInfos.iterator():
+            # print(fieldInfo.name)
         # Run the query and get documents that contain the term
         docs_containing_term = searcher.search(query, reader.numDocs())
         
         
-        print( 'Found '+str(len(docs_containing_term.scoreDocs))+' documents with the term "'+TERM+'".')
-        print( 'Calculating sentiment scores...')
+        # print( 'Found '+str(len(docs_containing_term.scoreDocs))+' documents with the term "'+TERM+'".')
+        # print( 'Calculating sentiment scores...')
         term_words = []
         #hits = searcher.search(query, 1)
         for hit in tqdm(docs_containing_term.scoreDocs):
@@ -139,16 +137,13 @@ def main():
         sa_df = a_sa.make_sa_df(doc_data, sa_term,TERM)
         pickle.dump(sa_df, open('./pickles/%s_df.pkl'%TERM, 'wb'))
         pickle.dump(term_words, open('./pickles/%s_words.pkl'%TERM, 'wb'))
-    else:
-        sa_df = doc_data
-    
-    print(sa_df)
+        # sa_df = doc_data
+        
+    # print(sa_df)
             
-    #process dataframe for various properties (split this into specific functions later)
-    use_weighted = True
-    total_doc = False
+    # process dataframe for various properties (split this into specific functions later)
+    # use_weighted = True
+    # total_doc = False
     # a_sa.plot_term_score_data(sa_df,TERM,use_weighted, date_range)
     
 
-if __name__ == "__main__":
-    main()

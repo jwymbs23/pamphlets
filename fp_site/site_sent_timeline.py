@@ -8,7 +8,7 @@ from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
-
+import glob
 
 # sent_df = pickle.load(open('../pickles/3_df_sentiment.pkl', 'rb'))
 
@@ -36,24 +36,47 @@ def get_sent_dict(sent_df, terms, weight_flag = True, date_range = (1786,1800)):
 
     doc_count_cutoff = 0
     
-    docs_per_year = sent_df.groupby('date').count()
+    # docs_per_year = sent_df.groupby('date').count()
     # print(docs_per_year)
     terms = sorted(terms)
     for raw_term in terms:
         term = s_cols + raw_term
-        doc_count = sent_df[term].count()
+        try:
+            print(raw_term)
+            print(glob.glob('./pickles/*'))
+            print('./pickles/'+raw_term+'_df.pkl')
+            term_df = pickle.load(open('./pickles/'+raw_term+'_df.pkl', 'rb'))
+        except:
+            print('error')
+        term_df = pd.merge(term_df, sent_df[['identifier', 'date']], on='identifier')        
+        doc_count = term_df[term].count()
         print(doc_count)
+        sentiment_series = []
         if doc_count > doc_count_cutoff:
-            mean_by_date = sent_df[term].groupby(sent_df[u'date']).mean()
-            date_count = sent_df[term].groupby(sent_df['date']).count().tolist()
+            mean_by_date = term_df.groupby('date')[term].mean()
+            date_count = term_df.groupby('date')[term].count().tolist()
             dates = mean_by_date.keys().tolist()
             scores = mean_by_date.tolist()
-            sentiment_series = [(date,score,dcount) for date, score,dcount in zip(dates,scores,date_count)
-                                if date > date_range[0] and date <= date_range[1]]
+            # old way with single large dataframe                                                
+            # mean_by_date = sent_df[term].groupby(sent_df[u'date']).mean()
+            # date_count = sent_df[term].groupby(sent_df['date']).count().tolist()
+            # dates = mean_by_date.keys().tolist()
+            # scores = mean_by_date.tolist()
+            # sentiment_series = [(date,score,dcount) for date, score,dcount in zip(dates,scores,date_count)
+            #                      if date > date_range[0] and date <= date_range[1]]
+            for cd, date in enumerate(range(date_range[0], date_range[1])):
+                if date in dates:
+                    date_idx = dates.index(date)
+                    sentiment_series.append((dates[date_idx], scores[date_idx], date_count[date_idx]))
+                elif date >= date_range[0] and date < date_range[1]:
+                    sentiment_series.append((date, 0,0))
+                                                
             sent_dict[term[len(s_cols):]] = sentiment_series
     return sent_dict
 
-# 
+
+
+
 # print(list(sent_dict))
 # person_list = list(sent_dict)[:5]
 # plist = []

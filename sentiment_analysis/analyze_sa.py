@@ -20,11 +20,12 @@ def make_sa_df(doc_data, sa_data, TERM):
     for single_doc_sa_data in sa_data:
         # ensure that all data is present
         if len(single_doc_sa_data) == 5:
+            doc_id = single_doc_sa_data[0][:-9]
             term = single_doc_sa_data[1]
             # print(term)
             # add data to dict that will become the dataframe
-            print(single_doc_sa_data[0].rsplit('/', 1)[1][:-9])
-            sa_dict['identifier'].append(single_doc_sa_data[0].rsplit('/', 1)[1][:-9])
+            sa_dict['identifier'].append(doc_id)
+            
             # sa_dict['term'].append(single_doc_sa_data[1])
             sa_dict['sentiment_vals_w_'+TERM].append(float(single_doc_sa_data[2]))
             sa_dict['sentiment_vals_unw_'+TERM].append(float(single_doc_sa_data[4]))
@@ -45,8 +46,11 @@ def make_sa_df(doc_data, sa_data, TERM):
     # plt.hist2d(sentiment_vals, certainty_vals,bins=15)
     # plt.show()
     sentiment_df = pd.DataFrame(data = sa_dict)
+    #    print(sa_dict['date'], sentiment_df)
     sentiment_df.set_index('identifier',inplace=True,drop=False)
-    return doc_data.join(sentiment_df, rsuffix='_'+TERM, how = 'outer')
+
+    return sentiment_df
+# doc_data.join(sentiment_df, rsuffix='_'+TERM, how = 'outer')
 
 
 
