@@ -63,7 +63,8 @@
     <title>French pamphlets</title>
     <center>
       <h1>pamphlets</h1>
-      <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a>  
+      <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a>
+      - <a href="{{url_for('insights')}}">Insights</a>
 
       <hr size="200">
 
@@ -79,8 +80,13 @@
 
   </head>
   <body>
-    Description of trending term heuristic.
-    
+
+    <div class="container">
+      <div class="starter-template">
+	<p>Click on one of the years above to see a chart of the top 20 most 'popular' terms of that year, and their popularity throughout the length of the French Revolution.</p>
+	<p>The popularity of a term is measured as the number of times that it appears in a given year divided by a measure of the number of total documents that the term appears in. This is known as a tf-idf (term frequency - inverse document frequency) scheme, and can help highlight words that appear frequently in some subset of a corpus, but not frequently in the entire corpus, as would common words like "the" and "and".</p>
+      </div>
+    </div>
     
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     

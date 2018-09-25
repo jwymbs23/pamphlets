@@ -71,8 +71,11 @@
   <title>French pamphlets</title>
   <center>
     <h1>pamphlets</h1>
-    <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a>
+    <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{url_for('insights')}}">Insights</a>
+    
     <hr size="200">
+
+    
     <div id="nav">
       {% for lyear in range(n_years) %}
       {% if years[lyear] == year|int %}
