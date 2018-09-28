@@ -147,7 +147,7 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
         
         # print( 'Found '+str(len(docs_containing_term.scoreDocs))+' documents with the term "'+TERM+'".')
         # print( 'Calculating sentiment scores...')
-        term_words = []
+        term_words = {}
         #hits = searcher.search(query, 1)
         for hit in tqdm(docs_containing_term.scoreDocs):
 
@@ -158,7 +158,8 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
             score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)
-            term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
+            #term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
+            term_words[doc.get(DOC_NAME).split('/')[-1]] = doc_words
             sa_doc_score = [doc.get(DOC_NAME)] + score_data
             sa_term.append(sa_doc_score)
         sa_df = a_sa.make_sa_df(doc_data, sa_term,TERM)

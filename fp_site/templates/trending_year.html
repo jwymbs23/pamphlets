@@ -25,7 +25,7 @@
     }
 
     .nav:link, .nav:visited {
-    background-color: #D3D3D3;
+    background-color: #eee;
 
     padding: 5px 10px;
     text-align: center;
@@ -55,6 +55,7 @@
     }
 
     
+    
   </style>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <!-- <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
@@ -70,11 +71,27 @@
   
   <title>French pamphlets</title>
   <center>
-    <h1>pamphlets</h1>
-    <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{url_for('insights')}}">Insights</a>
+    
+    <h3>Sentiment Analysis in French Revolutionary Pamphlets</h3>
+    <hr size="10" width="450">
+    <a href="{{ url_for('home_page') }}">Home</a> - <a class="active" href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
+    
+    
+    
+    <style>
+      a.active{
+      color: #000000;
+      background: #eee;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      
+      }
+    </style>
     
     <hr size="200">
-
+    
     
     <div id="nav">
       {% for lyear in range(n_years) %}

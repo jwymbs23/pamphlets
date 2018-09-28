@@ -23,6 +23,8 @@
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
 
+
+    
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -30,11 +32,23 @@
       <![endif]-->
     <title>French pamphlets</title>
     <center>
-      <h1>pamphlets</h1>
-      <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a>
+      <h3>Sentiment Analysis in French Revolutionary Pamphlets</h3>
+      <hr size="10" width="450">
+      <a class="active" href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
     </center>
-    <hr size="200"> 
 
+
+    <style>
+      a.active{
+      color: #000000;
+      background: #eee;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      
+      }
+    </style>
 
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.css"> 
@@ -57,7 +71,7 @@
   		<input type="checkbox" name="terms" value="{{term}}"> <a href="/term_details/{{term}}">{{term}}</a><br>
 		{% endfor %}
 	      </form> -->
-	      Select some words from the form below to see a timeline of the sentiment expressed about that word through the course of the French Revolution.<br>
+	      Select some words from the form below to see a timeline of the sentiment expressed about those word over the course of the French Revolution.<br>
 	      <form action="/output" method="post">
 		<div>
 		  <select class="chzn-select" multiple="true" name="terms" style="width:200px;">
@@ -71,16 +85,22 @@
 	      
 	      Don't see the term you want? <a href="/new_term">Add a new term</a>
 	      <br><br>
-	      Click on a term to see the documents that contain the most positive and negative mentions of that term:<br><br>
-	      <div style="height:230px;width:300px;border:1px solid #ccc;overflow:auto;">
+	      Click on a term to see the documents that contain the most positive and negative mentions of that term:<br>
+	      <div style="height:230px;width:90%;border:1px solid #ccc;overflow:auto;">
 		{% for term in terms %}
 		&nbsp; <a href="/term_details/{{term}}">{{term}}</a><br>
 		{% endfor %}
 	      </div>
 	    </div>
 	    <div class="column" style="width:70%;padding-left:80px;">
-	      <p>In 1789, for the first time, public opinion determined political power. As the public struggled to achieve “liberté, égalité, fraternité,” they backed one governing body and then the next, making the French Revolution seem more like the French Revolving Door. The digitized pamphlets in the Newberry Library collection represent an opportunity to explore how public discourse influenced the events of the French Revolution. This website presents the results of work done under the auspices of the <a href="https://www.newberry.org/open-data-grant-winners-conduct-sentiment-analysis-thousands-french-revolution-pamphlets">Newberry Open Data Grant</a>. We used Sentiment Analysis to measure the strength and nature of opinions that are expressed about major players of the French Revolution. This website is designed to let a user explore how emotion and opinions about these people and concepts changed over the course of a tumultuous 15 years.
-	      </p><br><br>
+
+	      <p>In 1789, for the first time, public opinion determined political power. The peoples' struggle to achieve “liberté, égalité, fraternité” played out in part in political pamphlets which included speeches, opinion pieces, and news. Essentially, these documents were the "twitter" of the day. The more than 30,000 <a href="https://archive.org/details/newberryfrenchpamphlets">digitized pamphlets</a> in the Newberry Library collection represent an opportunity to explore how public discourse influenced the events of the French Revolution. </p>
+	      <p>This website presents the results of work done for the <a href="https://www.newberry.org/open-data-grant-winners-conduct-sentiment-analysis-thousands-french-revolution-pamphlets">Newberry Open Data Grant</a>. We used Sentiment Analysis to measure the strength and nature of opinions that are expressed about major players of the French Revolution. This website is designed to let a user explore how emotion and opinions about these people and concepts changed over the course of a tumultuous 15 years. 
+	      </p>
+	      <p>The sentiment analysis in this project involved using a lexicon of French words, each with a score corresponding to how positive or negative its connotation was. For more information about the methodology, <a href="{{url_for('methods')}}">click here.</a> </p>
+	      <p>Selecting some terms on the left will show you a timeline of the relative sentiment expressed in the pamphlet collection about those terms over the course of the Revolution. Each line is weighted according to how many documents in a given year mention its corresponding term. All of the lines are on the same scale. An absolute sentiment score has little meaning, so it is more appropriate to consider changes in sentiment from year to year when you are exploring the different terms.</p>
+	      <p> If you're interested in taking a closer look at the pamphlet collection, the digitizers at the Newberry library produced a <a href="https://newberryfrenchpamphlets.tumblr.com/">great blog</a> where they highlighted particularly interesting pamphlets</p>
+	      <br>
 	      <center>
 		<img src="static/liberte_egalite.png" alt="Liberte Egalite Fraternite" style="width:450px;"><br><br>
 	      </center>

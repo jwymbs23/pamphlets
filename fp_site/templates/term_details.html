@@ -30,13 +30,26 @@
       <![endif]-->
 
 	<center>
-	  <h1>pamphlets</h1>
-	  <a href="{{ url_for('home_page') }}">Home</a>  - <a href="{{ url_for('trending_page') }}">Trending terms</a>       - <a href="{{url_for('insights')}}">Insights</a>
+	  <h3>Sentiment Analysis in French Revolutionary Pamphlets</h3>
+	  <hr size="10" width="450">
+	  <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
 	</center>
+
+
+	<style>
+	  a.active{
+	  color: #000000;
+	  background: #eee;
+	  padding: 5px 10px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+
+	  }
+	</style>
   </head>
   <body>
-     <hr size="200"> 
-<!--
+     <!--
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
 	<div class="navbar-header">
@@ -59,8 +72,10 @@
     </nav>
     <br><br> -->
 	<div class="container">
-	  <div class="starter-template">
-	    <h3>Documents containing the word (most positive): {{term}}</h3>
+	  <div class="starter-template" style="text-align: left;">
+	    <left>
+	    <h3>Documents that are most positive about {{term}}:</h3>
+	    </left>
 	    {% for key, value in top_term_dict.items() %}
 
 	    <a href="https://archive.org/details/{{key[:-9]}}">{{key}}</a><br><br>
@@ -68,10 +83,10 @@
 	    {% for passage in value %}
 	    <div align="left"> <p>{{passage|safe}}</p></div>
 	    {% endfor %}
-	    <br><br>
+	    <br>
 	    {% endfor %}
 
-	    <h3>Documents containing the word (most negative): {{term}}</h3>
+	    <h3>Documents that are most negative about {{term}}:</h3>
 	    {% for key, value in bot_term_dict.items() %}
 
 	    <a href="https://archive.org/details/{{key[:-9]}}">{{key}}</a><br><br>

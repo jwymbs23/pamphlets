@@ -13,13 +13,23 @@ def display_texts(term):
     sent_df = pickle.load(open('./pickles/3_df_sentiment.pkl','rb'))
     # print(list(sent_df))
     term_df = pickle.load(open('./pickles/'+term+'_df.pkl', 'rb'))#sent_df.loc[sent_df['identifier_'+term].notnull()]
+    term_df = pd.merge(term_df, sent_df[['identifier', 'date', 'title']], on='identifier')
+
+    #print('hi', term_df)
     # print(len(term_df))
     top_doc_dict = {}
     bot_doc_dict = {}
-    # print(text_list)
-    top_5 = term_df.nlargest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
-    bottom_5 = term_df.nsmallest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
+    print(text_list)
+    for year in term_df['date'].unique():
+        top_5 = term_df.loc[term_df['date'] == year].nlargest(
+            5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
+        top_doc_dict[year] = top_5
+        
+        bottom_5 = term_df.loc[term_df['date'] == year].nsmallest(
+            5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
+        bot_doc_dict[year] = bottom_5
     #print(top_5, bottom_5)
+    
     for doc in text_list:
         # print(doc[0], doc[1])
         # print(len(doc), len(doc[1]))
@@ -38,7 +48,7 @@ def display_texts(term):
                         elif SA[stem_word] > 0:
                             rt.append('<font color="green">'+word+'</font>')
                         else:
-                            rt.append('<font color="red">'+word+'</font>')
+                            rt.append('<font color="#FF5353">'+word+'</font>')
                     try:
                         top_doc_dict[doc[0]].append(' '.join(rt))
                     except:
@@ -65,13 +75,15 @@ def display_texts(term):
                         elif SA[stem_word] > 0:
                             rt.append('<font color="green">'+word+'</font>')
                         else:
-                            rt.append('<font color="red">'+word+'</font>')
+                            rt.append('<font color="#FF5353">'+word+'</font>')
                     try:
                         bot_doc_dict[doc[0]].append(' '.join(rt))
                     except:
                         bot_doc_dict[doc[0]] = [' '.join(rt)]
                         
 
+
+                        
     return top_doc_dict, bot_doc_dict
 
 # print(display_texts('robespierre'))

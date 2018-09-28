@@ -29,13 +29,27 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
       <![endif]-->
 	<title>French pamphlets</title>
-	<center>
-	  <h1>pamphlets</h1>
-	  <a href="{{ url_for('home_page') }}">Home</a>  - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{url_for('insights')}}">Insights</a>
-	  
-	</center>
-	<hr size="200"> 	
 
+	
+	<center>
+	  <h3>Sentiment Analysis in French Revolutionary Pamphlets</h3>
+	  <hr size="10" width="450">
+	  <a class="active" href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
+	</center>
+
+
+	<style>
+	  a.active{
+	  color: #000000;
+	  background: #eee;
+	  padding: 5px 10px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+
+	  }
+	</style>
+	
 
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 	<script src="http://code.jquery.com/jquery-1.8.3.js"></script>

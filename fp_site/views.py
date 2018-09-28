@@ -76,6 +76,10 @@ def home_page():
 def insights():
     return render_template("insights.html")
 
+@app.route('/methods')
+def methods():
+    return render_template("methods.html")
+
 @app.route('/term_details/<term>', methods=['GET', 'POST'])
 def term_details(term):
     top_term_dict, bot_term_dict = display_texts(term)
