@@ -19,7 +19,7 @@ def display_texts(term):
     # print(text_list)
     top_5 = term_df.nlargest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
     bottom_5 = term_df.nsmallest(5, 'sentiment_vals_unw_'+term)['identifier'].tolist()
-    print(top_5, bottom_5)
+    #print(top_5, bottom_5)
     for doc in text_list:
         # print(doc[0], doc[1])
         # print(len(doc), len(doc[1]))

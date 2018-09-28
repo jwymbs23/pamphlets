@@ -66,9 +66,38 @@ def get_doc_df(remake_df = True):
         return pickle.load(open('./pickles/3_df_relevant.pkl','rb'))
     else:
         return pickle.load(open('./pickles/3_df_sentiment.pkl','rb'))
- 
 
-def add_new_term(TERM, searcher, reader, remake_df=False, window_size=30):
+
+def get_doc_list(TERM, searcher, reader):
+
+    FIELD_CONTENTS = "text"
+    DOC_NAME = "identifier"
+    STORE_DIR = "./full_index1"
+
+    # Get the analyzer
+    analyzer = WhitespaceAnalyzer()
+    
+    # Constructs a query parser. We specify what field to search into.
+    queryParser = QueryParser(FIELD_CONTENTS, analyzer)
+    
+    # Create the query
+    query = queryParser.parse(TERM)
+    
+    #lucene.initVM()
+    #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
+    
+    # fieldInfos = MultiFields.getMergedFieldInfos(reader)
+    # print(fieldInfos)
+    # for fieldInfo in fieldInfos.iterator():
+    # print(fieldInfo.name)
+    # Run the query and get documents that contain the term
+    return searcher.search(query, reader.numDocs())
+
+    
+
+    
+
+def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, window_size=30):
     #constants
     FIELD_CONTENTS = "text"
     DOC_NAME = "identifier"
@@ -97,25 +126,23 @@ def add_new_term(TERM, searcher, reader, remake_df=False, window_size=30):
     if not glob.glob('./pickles/%s_df.pkl'%TERM):
 
         # Get the analyzer
-        analyzer = WhitespaceAnalyzer()
-        
-        # Constructs a query parser. We specify what field to search into.
-        queryParser = QueryParser(FIELD_CONTENTS, analyzer)
-        
-        # Create the query
-        query = queryParser.parse(TERM)
-
-
-        
-        #lucene.initVM()
-        #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
-
-        # fieldInfos = MultiFields.getMergedFieldInfos(reader)
-        # print(fieldInfos)
-        # for fieldInfo in fieldInfos.iterator():
-            # print(fieldInfo.name)
-        # Run the query and get documents that contain the term
-        docs_containing_term = searcher.search(query, reader.numDocs())
+#        analyzer = WhitespaceAnalyzer()
+#        
+#        # Constructs a query parser. We specify what field to search into.
+#        queryParser = QueryParser(FIELD_CONTENTS, analyzer)
+#        
+#        # Create the query
+#        query = queryParser.parse(TERM)
+#        
+#        #lucene.initVM()
+#        #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
+#
+#        # fieldInfos = MultiFields.getMergedFieldInfos(reader)
+#        # print(fieldInfos)
+#        # for fieldInfo in fieldInfos.iterator():
+#            # print(fieldInfo.name)
+#        # Run the query and get documents that contain the term
+#        docs_containing_term = searcher.search(query, reader.numDocs())
         
         
         # print( 'Found '+str(len(docs_containing_term.scoreDocs))+' documents with the term "'+TERM+'".')

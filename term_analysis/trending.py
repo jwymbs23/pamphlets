@@ -200,7 +200,7 @@ def tfidf_method(full_term_data, date_range):
                 #                        term_idf += 1
                 #                        # print(term)
                 #                idf[term] = term_idf
-    print(idf['bonaparte'])
+    #print(idf['bonaparte'])
     
     # tf-idf
     tfidf = [{} for _ in range(n_years+1)]
@@ -215,6 +215,14 @@ def tfidf_method(full_term_data, date_range):
 
     trending_plot(tfidf, top_words_year)
     return top_words_year
+
+
+def strip_stopwords_punc(text):
+    clean_text = []
+    for word in text:
+        if word not in stopwords and word not in string.punctuation:
+            clean_text.append(word)
+    return clean_text
 
 
 
@@ -236,7 +244,10 @@ def main():
     pickle_file = glob.glob('full_word_list.pkl')
     print(pickle_file)
     date_range = (1785,1805)
-    if 1:#not pickle_file:
+
+    bigrams = True
+    remake_word_list = False
+    if remake_word_list:#not pickle_file:
         
 
         full_df = get_full_df()
@@ -259,37 +270,56 @@ def main():
                 one_doc = topDocs.scoreDocs[0].doc
                 doc_name = searcher.doc(one_doc)
                 #print(doc_name, doc_id)
-                termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, FIELD_CONTENTS)
 
-                if termvec != None:
-                    #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
-    
-                    termsEnum = termvec.iterator()
-                    for term in BytesRefIterator.cast_(termsEnum):
-                        terms.append(term.utf8ToString())
-                        freqs.append(termsEnum.totalTermFreq())
-
-            for term,freq in zip(terms, freqs):
-                try:
-                    year_dict[term] += freq
-                except:
-                    year_dict[term] = freq
+                if bigrams == False:
+                    termvec = ireader.getTermVector(topDocs.scoreDocs[0].doc, FIELD_CONTENTS)
+                    
+                    if termvec != None:
+                        #termvec = reader.getTermVector(topDocs.scoreDocs[0].doc, "all")
+                    
+                        termsEnum = termvec.iterator()
+                        for term in BytesRefIterator.cast_(termsEnum):
+                            terms.append(term.utf8ToString())
+                            freqs.append(termsEnum.totalTermFreq())
+                else:
+                    #print(doc_name, doc_id)
+                    text = doc_name.get("text")
+                    text = text.split()
+                    text = strip_stopwords_punc(text)
+                    for word1, word2 in zip(text[:-1], text[1:]):
+                        if len(word1)+len(word2) > 6:
+                            try:
+                                year_dict[word1+' '+word2] += 1
+                            except:
+                                year_dict[word1+' '+word2] = 1
+            if bigrams == False:
+                for term,freq in zip(terms, freqs):
+                    try:
+                        year_dict[term] += freq
+                    except:
+                        year_dict[term] = freq
             print(len(year_dict))
+            #print(year_dict)
             for term in list(year_dict):
-                if year_dict[term] < 5 and term not in stopwords:
+                if year_dict[term] < 15 and term not in stopwords:
                     year_dict.pop(term)
             full_term_data.append(year_dict)
             print(len(year_dict))
             #year_dict = year_dict + doc_dict
             #print(year_dict.most_common(1000))
             print('\n\n')
-    
-        pickle.dump(full_term_data, open('full_word_list.pkl', 'wb'))
+        if bigrams:
+            pickle.dump(full_term_data, open('full_bigram_list.pkl', 'wb'))
+        else:
+            pickle.dump(full_term_data, open('full_word_list.pkl', 'wb'))
     else:
-        full_term_data = pickle.load(open('full_word_list.pkl', 'rb'))
+        if bigrams:
+            full_term_data = pickle.load(open('full_bigram_list.pkl', 'rb'))
+        else:
+            full_term_data = pickle.load(open('full_word_list.pkl', 'rb'))
         # get complete list of unique words
         # top_words_year = zscore_method(full_term_data, date_range)
-
+        
         top_words_year = tfidf_method(full_term_data, date_range)
         print(top_words_year)
     pickle.dump(top_words_year, open('trending_ratio.pkl', 'wb'))

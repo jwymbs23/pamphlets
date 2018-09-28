@@ -8,6 +8,7 @@ from fp_site.site_sent_timeline import gen_plot
 from fp_site.sa_detailed_view import display_texts
 from fp_site.new_term import add_new_term
 from fp_site.new_term import define_search_params
+from fp_site.new_term import get_doc_list
 
 import pickle
 import base64
@@ -66,7 +67,7 @@ def home_page():
     pickle_list = glob.glob('./pickles/*df.pkl')
     term_cols = [term[10:-7] for term in pickle_list]
     term_cols = sorted(term_cols)
-    print(term_cols)
+    #print(term_cols)
         
     return render_template("home.html", terms=term_cols)
 
@@ -86,7 +87,7 @@ def term_details(term):
 @app.route('/trending', methods = ['GET', 'POST'])
 def trending_page():
     trending_data = pickle.load(open('./pickles/trending_ratio.pkl', 'rb'))
-    print(trending_data)
+    #print(trending_data)
     years = [i[0] for i in trending_data]
     trending_terms = [i[1:] for i in trending_data]
     n_years = len(years)-1
@@ -119,7 +120,7 @@ def output():
     checked_terms = flask.request.form.getlist('terms')
     # get list of terms to plot
     #terms = flask.request.values.get('terms')
-    print('terms:', checked_terms)
+    #print('terms:', checked_terms)
     weight_flag = True
     date_range = (1786,1801)
     
@@ -168,11 +169,11 @@ def add_new_term_page():
     else:
         vm.attachCurrentThread()
         # make sure term doesn't appear in too many documents
-        doc_list = get_doc_list()
-        if len(doc_list) > 10000:
+        doc_list = get_doc_list(term, searcher, reader)
+        if len(doc_list.scoreDocs) > 15000:
             return render_template("high_frequency_word.html")
-        elif len(doc_list) < 10:
+        elif len(doc_list.scoreDocs) < 10:
             return render_template("low_frequency_word.html")
         else:
-            add_new_term(term, searcher=searcher, reader=reader)
+            add_new_term(term, doc_list, searcher=searcher, reader=reader)
     return render_template("add_new_term.html", term=term)

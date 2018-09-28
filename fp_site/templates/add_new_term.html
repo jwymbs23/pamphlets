@@ -54,8 +54,12 @@
     
     <div class="container">
       <div class="starter-template">
-	Add a new term {{term}}. <br>
-	<a href="{{url_for('new_term')}}"> Add new term </a>
+	Successfully added a new term: {{term}}. <br>
+	Go back to <a href="{{url_for('home_page')}}"> the home page </a> to learn more about {{term}}.<br>
+	
+	<a href="{{url_for('new_term')}}"> Add another term </a><br>
+	Terms must be shorter than two words. If a term appears in less than 10 documents, or more than 10000, we suggest picking a new term that is either more popular, or less generic.
+	
 	<!-- <div class="progress" style="width: 50%; margin: 50px;">
 	  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div> -->
 	</div>

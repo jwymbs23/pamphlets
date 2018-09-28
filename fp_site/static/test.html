@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+  <meta charset="utf-8">
+  
+  <head>
+    <!-- Import Vega 4 & Vega-Lite 2 (does not have to be from CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.6.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm//vega-embed@3.14"></script>  
+    
+  </head>
+  <body>
+
+    <div id="vis"></div>
+    <!--"https://raw.githubusercontent.com/vega/vega/master/docs/examples/bar-chart.vg.json";-->
+    <script type="text/javascript" src="./trending_1800.js"></script>    
+    <script type="text/javascript">
+      var spec = trending_data
+      console.log(trending_data);
+      vegaEmbed('#vis', trending_data).then(function(result) {
+      // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+      }).catch(console.error);
+    </script>
+  </body>
+</html>

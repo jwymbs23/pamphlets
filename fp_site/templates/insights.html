@@ -40,11 +40,26 @@
     <div class="container">
       <div class="starter-template">
 	<h3>Sentiment Analysis</h3>
-	<p>These are some insights about the data. Could they guillotined have seen it coming? Probably not.<br>
-	  <img src="static/guillotine.png" alt="Italian Trulli">
-	  
-	  
+	<p>In 1789, for the first time, public opinion determined political power. As the public struggled to achieve “liberté, égalité, fraternité,” they backed one governing body and then the next, making the French Revolution seem more like the French Revolving Door. The Newberry pamphlet collection represents an opportunity to explore how public discourse influenced the events of the French Revolution. We used Sentiment Analysis to measure the strength and polarity of opinions that these pamphlets express about major players in the Revolution. This analysis can be used to systematically reveal long term and large scale trends in the public discourse that account for the rise and fall of the various forms of government.</p>
+	<p> Ultimately, our analysis seeks to answer three questions: Do the emotions expressed in the pamphlets reflect or presage events of the Revolution? Does the range of emotion in the pamphlets, many of which contains propaganda, intensify or diverge leading up to crisis points? And finally, can we see the seeds of internecine conflicts in a divergence of opinion between initially similar pamphlet authors over time?</p>
+	
+	
+	<h3>Methods:</h3>
+	<p> We use a lexicon-based Sentiment Analysis to assign a “polarity” to each pamphlet in which major players in the Revolution are mentioned. This method involves parsing phrases where the figure in question is referenced for terms expressing some sentiment and comparing those terms to a pre-determined lexicon. Each word in the lexicon is assigned a score corresponding to positive, negative, and neutral emotion with the polarity defined as the ratio of positive to negative scores. Using this straightforward method to translate each pamphlet into a set of scores allows for a wide range of statistical analysis that would be impossible to do any other way, especially considering the sheer number of pamphlets. Furthermore, this technique will translate emotional expression into a form that lends itself to visual storytelling.</p>
+	
+	<p> Regarding the first question about whether sentiment in the pamphlets reflects events on the ground of the French Revolution, we plot the sentiment score of passages that mention people who eventually went to the guillotine as a function of the time to the year in which they were guillotined. This analysis only includes people who appear in more than 300 documents to ensure that there are enough documents from a wide enough time range.
 	</p>
+	<img src="static/guillotine_sentiment.png" alt="Sentiment before the guillotine">
+
+	<p>Second question about sentiment divergence shows that, yes sentiment scores do spread before someone is guillotined. </p>
+	<img src="static/guillotine_uncertainty.png" alt="Uncertainty before the guillotine">	
+	<!-- <p>In a first level of analysis, we will track yearly changes in the average polarity for key institutions and figures. Comparing how these figures are written about with the concurrent political situation could reveal how changes in the opinions either precede or follow major events. Many of these pamphlets contain propaganda, however, and are at best loosely reflective of public opinion. The pamphlets can be more correctly studied with regards to how they reveal the level of public discourse. To do this analysis, we will explore how the distribution of polarity scores varies through time. The distributions should show a wider spread of polarities when the opinions expressed in the pamphlets diverge. This divergence could signal upcoming political change. A final, more granular analysis will explore the seeds of internecine conflict. We will analyze authors with similar opinions (determined by the alignment of their polarity scores on enough key figures) who disagree with each other after some point in time. This method would reveal the most divisive topic, figure, or event for these authors.</p>
+	<p>While the quality of the OCR generated text varies throughout the collection, we have done some preliminary analysis of the pamphlets, clustering a subset by their relative term similarity. This procedure was successful at classifying the documents by topic with minimal pre-processing, so we anticipate that the more targeted analysis proposed here will also be effective.</p>
+	<p>Making our findings available online provides educators resources with which to teach the French Revolution. Additionally, it provides scholars directions for further exploring the influence of public opinion on politics post-1789 - indeed, our project provides qualitative guidelines to study the relationships between words and actions during times of radical political instability. </p> -->
+	
+	
+
+	
       </div>
     </div>
       
