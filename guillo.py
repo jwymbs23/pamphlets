@@ -40,7 +40,7 @@ def get_sent_dict(sent_df, terms, guill_year, weight_flag = True, date_range = (
         s_cols = 'sentiment_vals_unw_'
     #s_cols = 'certainty_vals_'
     
-    doc_count_cutoff = 300
+    doc_count_cutoff = 200
     
     # docs_per_year = sent_df.groupby('date').count()
     # print(docs_per_year)
@@ -59,9 +59,17 @@ def get_sent_dict(sent_df, terms, guill_year, weight_flag = True, date_range = (
         # print(doc_count)
         if doc_count > doc_count_cutoff:
             mean_by_date = term_df.groupby('date')[term].mean()
+
+            max_by_date = term_df.groupby('date')[term].max().tolist()
+            min_by_date = term_df.groupby('date')[term].min().tolist()
+            
+            std_by_date = term_df.groupby('date')[term].std()
             date_count = term_df.groupby('date')[term].count().tolist()
             dates = mean_by_date.keys().tolist()
             scores = mean_by_date.tolist()
+            #stdev = std_by_date.tolist()
+            #stdev = [i if not np.isnan(i) else 0 for i in stdev]
+            stdev = [h - l for h,l in zip(max_by_date, min_by_date)]
             sentiment_series = []
             #print(dates)
             for cd, date in enumerate(range(date_range[0], date_range[1])):
@@ -69,9 +77,10 @@ def get_sent_dict(sent_df, terms, guill_year, weight_flag = True, date_range = (
                     date_idx = dates.index(date)
                     #normalize
                     #sentiment_series.append((dates[date_idx], scores[date_idx] - np.mean(scores[date_idx]), date_count[date_idx]))
-                    sentiment_series.append((dates[date_idx], scores[date_idx], date_count[date_idx]))
+                    sentiment_series.append((dates[date_idx], scores[date_idx] - np.mean(scores[date_idx]), stdev[date_idx], date_count[date_idx]))
+                    
                 elif date >= date_range[0] and date < date_range[1]:
-                    sentiment_series.append((date, 0,0))
+                    sentiment_series.append((date, 0, 0, 0))
                     
             # sentiment_series = [(date,score,dcount) for date, score,dcount in zip(dates,scores,date_count)
             #                     if date >= date_range[0] and date < date_range[1]]
@@ -128,12 +137,18 @@ def gen_plot(sent_dict, terms, guill_year, date_range):
             #    print([i[2] for i in t_data])
             dates = [i[0] - guill_year[tc] for i in t_data]
             yval = [tc for _ in t_data]
-            n_docs = [i[2] for i in t_data]
+            n_docs = [i[3] for i in t_data]
             #sentiment = [i[1] for i in t_data]
 
             sentiment = np.asarray([i[1] for i in t_data])
             sent_mean = np.mean(sentiment[sentiment != 0])
             sentiment[sentiment == 0] = sent_mean
+
+
+            stdev = np.asarray([i[2] for i in t_data])
+            stdev_mean = np.mean(stdev[stdev != 0])
+            stdev[stdev == 0] = stdev_mean
+
             #print(sentiment)
 
             # sentiment = [i if not np.isnan(i) else min(sentiment_w_nans) for i in sentiment_w_nans]
@@ -141,7 +156,9 @@ def gen_plot(sent_dict, terms, guill_year, date_range):
             # maxsent = np.nanmax(sentiment)
             # minsent = np.nanmin(sentiment)
             # sent_color = (np.asarray(sentiment) - minsent)/(maxsent - minsent)*0.5
-            sent_color = np.asarray(sentiment)
+
+            #sent_color = np.asarray(sentiment)
+            sent_color = np.asarray(stdev)
             plt.plot(dates, sent_color, lw=0.5)
             for ty, diffyear in enumerate(dates):
                 print(diffyear)
@@ -174,7 +191,7 @@ def gen_plot(sent_dict, terms, guill_year, date_range):
 #    ax.spines['left'].set_visible(False)
     ax.yaxis.grid(which='major')
     ax.xaxis.grid(which='major')
-    ax.set_xticks(range(-6,6))
+    ax.set_xticks(range(-7,8))
     plt.ylabel('Sentiment Score')# Standard Deviation')
     plt.xlabel('Years until Guillotined')
     #plt.legend()
@@ -264,7 +281,7 @@ def main():
     #terms = flask.request.values.get('terms')
 
     weight_flag = True
-    date_range = (1786,1801)
+    date_range = (1782,1804)
     
     checked_term_dict = get_sent_dict(sent_df, guillotined, guill_year, weight_flag, date_range)
     

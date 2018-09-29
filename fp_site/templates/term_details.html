@@ -11,13 +11,38 @@
 
     <title>French pamphlets</title>
     <!-- Bootstrap core CSS -->
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet"> 
-
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
 
+    <style>
+      a.active{
+      color: #000000;
+      background: #eee;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      }
+      
+      .nav:link, .nav:visited {
+      background-color: #eee;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      }
+            
+      .nav:hover, .nav:active {
+      padding: 5px 10px;
+      background-color: #A9A9A9;
+      }
+      
+      .spacer { margin:0; padding:0; height:25px; }
+    </style>
+
+    <link href="../../static/css/bootstrap.min.css" rel="stylesheet">     
     <!-- Custom styles for this template -->
-    <link href="../static/css/home.css" rel="stylesheet">
+    <link href="../../static/css/home.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -35,84 +60,78 @@
 	  <a href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
 	</center>
 
-
-	<style>
-	  a.active{
-	  color: #000000;
-	  background: #eee;
-	  padding: 5px 10px;
-	  text-align: center;
-	  text-decoration: none;
-	  display: inline-block;
-
-	  }
-	</style>
-  </head>
+  </head>	
   <body>
-     <!--
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-	<div class="navbar-header">
-	  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-	    <span class="sr-only">Toggle navigation</span>
-	    <span class="icon-bar"></span>
-	    <span class="icon-bar"></span>
-	    <span class="icon-bar"></span>
-	  </button>
-	  <a class="navbar-brand" href="#">Project name</a>
-	</div>
-	<div id="navbar" class="collapse navbar-collapse">
-	  <ul class="nav navbar-nav">
-	    <li class="active"><a href="#">Home</a></li>
-	    <li><a href="#about">About</a></li>
-	    <li><a href="#contact">Contact</a></li>
-	  </ul>
-	</div><!--/.nav-collapse
+    <center>
+      <hr size="200">
+      <div id="nav">
+	{% if year == "overall" %}
+	<a class="nav" style="background-color:#a9a9a9;color:#ffffff;" href="/term_details/overall/{{term}}">Overall</a>&nbsp;
+	{% else %}
+	<a class="nav" href="/term_details/overall/{{term}}">Overall</a>&nbsp;
+	{% endif %}
+	{% for lyear in range(n_years) %}
+	  {% if years[lyear]|string in doc_years %}
+	    {% if years[lyear]|string == year %}
+	      <a class="nav" style="background-color:#a9a9a9;color:#ffffff" href="/term_details/{{years[lyear]}}/{{term}}">{{years[lyear]}}</a>&nbsp;
+	    {% else %}
+	      <a class="nav" href="/term_details/{{years[lyear]}}/{{term}}">{{years[lyear]}}</a>&nbsp;
+	    {% endif %}
+	  {% else %}
+	    <body style="padding:5px 10px;">{{years[lyear]}}</body> &nbsp;
+	  {% endif %}
+	{% endfor %}
       </div>
-    </nav>
-    <br><br> -->
-	<div class="container">
-	  <div class="starter-template" style="text-align: left;">
-	    <left>
-	    <h3>Documents that are most positive about {{term}}:</h3>
-	    </left>
-	    {% for key, value in top_term_dict.items() %}
+      <hr size="200" style="margin-top: 0.0em;">
 
-	    <a href="https://archive.org/details/{{key[:-9]}}">{{key}}</a><br><br>
-	   
-	    {% for passage in value %}
-	    <div align="left"> <p>{{passage|safe}}</p></div>
-	    {% endfor %}
-	    <br>
-	    {% endfor %}
-
-	    <h3>Documents that are most negative about {{term}}:</h3>
-	    {% for key, value in bot_term_dict.items() %}
-
-	    <a href="https://archive.org/details/{{key[:-9]}}">{{key}}</a><br><br>
-	   
-	    {% for passage in value %}
-	    <div align="left"> <p>{{passage|safe}}</p></div>
-	    {% endfor %}
-	    <br><br>
-	    {% endfor %}
+      <div id="vis"></div>
+    </center>
+    <div class="container">
+      <div class="starter-template" style="text-align: left;">
+	<left>
+	  <h3>Documents that are most positive about {{term}}:</h3>
+	</left>
+	{% for doc_num in range(top_term_dict[0]|length) %} <!-- key, value in top_term_dict.items() %} -->
+	
+	<a href="https://archive.org/details/{{top_term_dict[0][doc_num]}}">{{top_term_dict[2][doc_num]}}</a><br>
+	Sentiment score: {{top_term_dict[1][doc_num]|round(2)}}<br>
+	{% for passage in top_term_dict[3][doc_num] %}
+	<div align="left"> <p>{{passage|safe}}</p></div>
+	{% endfor %}
+	<br>
+	{% endfor %}
+	
+	<h3>Documents that are most negative about {{term}}:</h3>
+	{% for doc_num in range(bot_term_dict[0]|length) %} <!-- key, value in top_term_dict.items() %} -->
+	
+	<a href="https://archive.org/details/{{bot_term_dict[0][doc_num]}}">{{bot_term_dict[2][doc_num]}}</a><br>
+	Sentiment score: {{bot_term_dict[1][doc_num]|round(2)}}<br>
+	{% for passage in bot_term_dict[3][doc_num] %}
+	<div align="left"> <p>{{passage|safe}}</p></div>
+	{% endfor %}
+	<br>
+	{% endfor %}
+	
+	<!--
 	    
-	    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	    
-	    <script src="static/js/bootstrap.min.js"></script>
-	    
-	    
-	  </div> <!-- /.container-->
-	  
-
-        <!-- Bootstrap core JavaScript
-	     ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-	  <script src="../../dist/js/bootstrap.min.js"></script>
-	  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	  <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
+	  -->
+	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+	
+	<script src="static/js/bootstrap.min.js"></script>
+	
+	
+      </div> <!-- /.container-->
+      
+      
+      <!-- Bootstrap core JavaScript
+	   ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+	<script src="../../dist/js/bootstrap.min.js"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+	<script src="static/js/bootstrap.min.js"></script>
   </body>
 </html>

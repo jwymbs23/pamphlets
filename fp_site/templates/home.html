@@ -76,7 +76,7 @@
 		<div>
 		  <select class="chzn-select" multiple="true" name="terms" style="width:200px;">
 		    {% for term in terms %}
-  		    <option value="{{term}}"> <a href="/term_details/{{term}}">{{term}}</a><br>
+  		    <option value="{{term}}"> {{term}}<br>
 		    {% endfor %}
 		  </select>
 		<input type="submit" value="Submit">
@@ -88,7 +88,7 @@
 	      Click on a term to see the documents that contain the most positive and negative mentions of that term:<br>
 	      <div style="height:230px;width:90%;border:1px solid #ccc;overflow:auto;">
 		{% for term in terms %}
-		&nbsp; <a href="/term_details/{{term}}">{{term}}</a><br>
+		&nbsp; <a href="/term_details/overall/{{term}}">{{term}}</a><br>
 		{% endfor %}
 	      </div>
 	    </div>

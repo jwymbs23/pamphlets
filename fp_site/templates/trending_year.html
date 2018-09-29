@@ -89,14 +89,12 @@
       
       }
     </style>
-    
+
     <hr size="200">
-    
-    
     <div id="nav">
       {% for lyear in range(n_years) %}
       {% if years[lyear] == year|int %}
-      {{years[lyear]}} &nbsp;
+      <a class="nav" style="background-color:#a9a9a9;color:#ffffff" href="/trending_year/{{years[lyear]}}">{{years[lyear]}}</a>&nbsp;
       {% else %}
       <a class="nav" href="/trending_year/{{years[lyear]}}">{{years[lyear]}}</a>&nbsp;
       {% endif %}

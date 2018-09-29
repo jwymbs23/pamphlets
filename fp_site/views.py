@@ -80,12 +80,18 @@ def insights():
 def methods():
     return render_template("methods.html")
 
-@app.route('/term_details/<term>', methods=['GET', 'POST'])
-def term_details(term):
+@app.route('/term_details/<year>/<term>', methods=['GET', 'POST'])
+def term_details(term, year='overall'):
     top_term_dict, bot_term_dict = display_texts(term)
+    #print(list(top_term_dict))
+    #print(list(bot_term_dict))
+    #print(year)
     #term_dict = dict(itertools.islice(term_dict.items(), 10))
     #print(term_dict[list(term_dict)[0]])
-    return render_template('term_details.html', term=term, top_term_dict=top_term_dict, bot_term_dict=bot_term_dict)
+    doc_years = sorted(list(bot_term_dict))
+    years = range(1785,1801)
+    n_years = len(years)
+    return render_template('term_details.html', doc_years=doc_years, years=years, year=year, term=term, top_term_dict=top_term_dict[year], bot_term_dict=bot_term_dict[year], n_years=n_years)
 
 
 @app.route('/trending', methods = ['GET', 'POST'])

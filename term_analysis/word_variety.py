@@ -129,6 +129,11 @@ def tfidf_method(full_term_data, date_range):
 def variation(text_block):
     return len(Counter(text_block))/len(text_block)
 
+
+def get_emotion(split_text):
+    for word in split_text:
+        
+
 def get_word_variation(split_text, block_size=1000):
     max_word = len(split_text)
     doc_var = 0
@@ -139,7 +144,7 @@ def get_word_variation(split_text, block_size=1000):
         doc_var += variation(split_text[last_endpoint:endpoint])
         n_blocks += 1
         last_endpoint = endpoint
-        endpoint = last_endpoint + 50#int(block_size*0.1)
+        endpoint = last_endpoint + block_size#int(block_size*0.1)
     if n_blocks == 0:
         return False
     else:
