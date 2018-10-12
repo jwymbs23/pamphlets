@@ -30,41 +30,58 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
       <![endif]-->
 
-    <center>
-      <h1>pamphlets</h1>
-      <a href="{{ url_for('home_page') }}">Home</a>  - <a href="{{ url_for('trending_page') }}">Trending terms</a>      - <a href="{{url_for('insights')}}">Insights</a>
-      
-    </center>
-    <hr size="200"> 
+        <title>French pamphlets</title>
+	<center>
+	  <h3>Sentiment Analysis in French Revolutionary Pamphlets</h3>
+	  <hr size="10" width="450">
+	  <a class="active" href="{{ url_for('home_page') }}">Home</a> - <a href="{{ url_for('trending_page') }}">Trending terms</a> - <a href="{{ url_for('insights') }}">Insights</a> - <a href="{{ url_for('methods') }}">Methods</a>
+	</center>
+	
+	
+	<style>
+	  a.active{
+	  color: #000000;
+	  background: #eee;
+	  padding: 5px 10px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  
+	  }
+	</style>
+	
+	<hr size="200"> 
   </head>
   <body>
-
-	<div class="container">
-	  <div class="starter-template">
-	    Add a new term.
-	    <form action="{{url_for('add_new_term_page')}}" method="post">
-	      <input type="text" name="term">
-	      <input type="submit" value="Submit">
-	    </form>
-	    Terms must be shorter than two words. If a term appears in less than 10 documents, or more than 15000, we suggest picking a new term that is either more popular, or less generic. Adding new terms can take a minute. If the term doesn't appear on the homepage immediately, please wait a bit and refresh, or just wait for this page to finish loading.
-	    
-	    
-	    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-	    
-	    <script src="static/js/bootstrap.min.js"></script>
-	    
-	    
-	  </div> <!-- /.container-->
-	  
-
-        <!-- Bootstrap core JavaScript
-	     ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-	  <script src="../../dist/js/bootstrap.min.js"></script>
-	  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	  <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
+    
+    <div class="container" style="width:60%;">
+      <div class="starter-template" style="text-align:left;">
+	Add a new term.
+	<form action="{{url_for('add_new_term_page')}}" method="post">
+	  <input type="text" name="term">
+	  <input type="submit" value="Submit">
+	</form>
+	<p>At this point, the term must be one word.</p>
+	<p>If a term appears in less than 10 documents, or more than 15000, we suggest picking a new term that is either more popular, or less generic.</p>
+	<p>Adding new terms can take a minute. If the term doesn't appear on the homepage immediately, please wait a bit and refresh, or just wait for this page to finish loading.</p>
+	
+	
+	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+	
+	<script src="static/js/bootstrap.min.js"></script>
+	
+	
+      </div> <!-- /.container-->
+      
+      
+      <!-- Bootstrap core JavaScript
+	   ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+	<script src="../../dist/js/bootstrap.min.js"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+	<script src="static/js/bootstrap.min.js"></script>
   </body>
 </html>

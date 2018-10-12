@@ -34,7 +34,7 @@ import glob
 
 
 
-def define_search_params(STORE_DIR, FIELD_CONTENTS):
+def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):
     
     #indexPath = File(STORE_DIR).toPath()
     #indexDir = FSDirectory.open(indexPath)
@@ -44,12 +44,14 @@ def define_search_params(STORE_DIR, FIELD_CONTENTS):
     searcher = IndexSearcher(reader)
         
     # Get the analyzer
-    # analyzer = WhitespaceAnalyzer()
+    analyzer = WhitespaceAnalyzer()
  
     # Constructs a query parser. We specify what field to search into.
-    # queryParser = QueryParser(FIELD_CONTENTS, analyzer)
+    queryParser = QueryParser(FIELD_CONTENTS, analyzer)
     
-    return searcher, reader
+    # Create the query
+    query = queryParser.parse(TERM)
+    return searcher, reader, query
 
 
 
@@ -66,73 +68,9 @@ def get_doc_df(remake_df = True):
         return pickle.load(open('./pickles/3_df_relevant.pkl','rb'))
     else:
         return pickle.load(open('./pickles/3_df_sentiment.pkl','rb'))
+ 
 
-
-def get_doc_list(TERM, searcher, reader):
-
-    FIELD_CONTENTS = "text"
-    DOC_NAME = "identifier"
-    STORE_DIR = "./full_index1"
-
-    # Get the analyzer
-    analyzer = WhitespaceAnalyzer()
-    
-    # Constructs a query parser. We specify what field to search into.
-    queryParser = QueryParser(FIELD_CONTENTS, analyzer)
-    
-    # Create the query
-    query = queryParser.parse(TERM)
-    
-    #lucene.initVM()
-    #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
-    
-    # fieldInfos = MultiFields.getMergedFieldInfos(reader)
-    # print(fieldInfos)
-    # for fieldInfo in fieldInfos.iterator():
-    # print(fieldInfo.name)
-    # Run the query and get documents that contain the term
-    return searcher.search(query, reader.numDocs())
-
-def new_term_single(SA_dict, TERM, hit, searcher, reader, remake_df=False, window_size=30):
-    FIELD_CONTENTS = "text"
-    DOC_NAME = "identifier"
-    STORE_DIR = "./full_index1"
-
-    #other options
-    stem_flag = True
-    spell_check_flag = False
-
-    #get dataframe
-    #doc_data = get_doc_df(remake_df)
-
-    #get dictionary
-    #SA_dict = get_dict(stem_flag)
-
-    # print('Searching for: "'+TERM+'"')
-    
-    sa_term = []
-    
-    date_range = (1791, 1800)
-    method = 'linear' #vs 1/x
-
-    example_flag = False
-    
-    #term_words = {}
-    doc = searcher.doc(hit.doc)
-    
-    #get the text from each document
-    doc_text = doc.get("text")#doc.get("text")#.encode("utf-8")
-    #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
-    score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
-    #print(score_data)
-    #term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
-    #term_words[doc.get(DOC_NAME).split('/')[-1]] = doc_words
-    return doc.get(DOC_NAME).split('/')[-1], doc_words, [doc.get(DOC_NAME)] + score_data
-
-    
-    
-
-def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, window_size=30):
+def add_new_term(TERM, remake_df=True, window_size=30):
     #constants
     FIELD_CONTENTS = "text"
     DOC_NAME = "identifier"
@@ -143,7 +81,7 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
     spell_check_flag = False
 
     #get dataframe
-    #doc_data = get_doc_df(remake_df)
+    doc_data = get_doc_df(remake_df)
 
     #get dictionary
     SA_dict = get_dict(stem_flag)
@@ -159,25 +97,15 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
 
     # if not 'sentiment_vals_w_'+TERM in list(doc_data):
     if not glob.glob('./pickles/%s_df.pkl'%TERM):
+        lucene.initVM()
+        searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
 
-        # Get the analyzer
-#        analyzer = WhitespaceAnalyzer()
-#        
-#        # Constructs a query parser. We specify what field to search into.
-#        queryParser = QueryParser(FIELD_CONTENTS, analyzer)
-#        
-#        # Create the query
-#        query = queryParser.parse(TERM)
-#        
-#        #lucene.initVM()
-#        #searcher, reader, query = define_search_params(STORE_DIR, FIELD_CONTENTS, TERM)
-#
-#        # fieldInfos = MultiFields.getMergedFieldInfos(reader)
-#        # print(fieldInfos)
-#        # for fieldInfo in fieldInfos.iterator():
-#            # print(fieldInfo.name)
-#        # Run the query and get documents that contain the term
-#        docs_containing_term = searcher.search(query, reader.numDocs())
+        # fieldInfos = MultiFields.getMergedFieldInfos(reader)
+        # print(fieldInfos)
+        # for fieldInfo in fieldInfos.iterator():
+            # print(fieldInfo.name)
+        # Run the query and get documents that contain the term
+        docs_containing_term = searcher.search(query, reader.numDocs())
         
         
         # print( 'Found '+str(len(docs_containing_term.scoreDocs))+' documents with the term "'+TERM+'".')
@@ -193,17 +121,12 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
             score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)
-            #term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
             term_words[doc.get(DOC_NAME).split('/')[-1]] = doc_words
             sa_doc_score = [doc.get(DOC_NAME)] + score_data
             sa_term.append(sa_doc_score)
-        sa_df = a_sa.make_sa_df(sa_term,TERM)
-        if len(sa_df) > 10:
-            pickle.dump(sa_df, open('./pickles/%s_df.pkl'%TERM, 'wb'))
-            pickle.dump(term_words, open('./pickles/%s_words.pkl'%TERM, 'wb'))
-            return len(sa_df)
-        else:
-            return len(sa_df)
+        sa_df = a_sa.make_sa_df(doc_data, sa_term,TERM)
+        pickle.dump(sa_df, open('./pickles/%s_df.pkl'%TERM, 'wb'))
+        pickle.dump(term_words, open('./pickles/%s_words.pkl'%TERM, 'wb'))
         # sa_df = doc_data
         
     # print(sa_df)

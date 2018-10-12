@@ -245,8 +245,8 @@ def main():
     print(pickle_file)
     date_range = (1785,1805)
 
-    bigrams = True
-    remake_word_list = False
+    bigrams = False
+    remake_word_list = True
     if remake_word_list:#not pickle_file:
         
 
@@ -301,7 +301,7 @@ def main():
             print(len(year_dict))
             #print(year_dict)
             for term in list(year_dict):
-                if year_dict[term] < 15 and term not in stopwords:
+                if year_dict[term] < 2:#5 and term not in stopwords:
                     year_dict.pop(term)
             full_term_data.append(year_dict)
             print(len(year_dict))

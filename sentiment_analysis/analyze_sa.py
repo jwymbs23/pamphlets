@@ -11,7 +11,7 @@ import seaborn as sns
 #doc_data.set_index('identifier',drop=False,inplace=True,verify_integrity=True)
 #print(doc_data.head(3))
 
-def make_sa_df(doc_data, sa_data, TERM):
+def make_sa_df(sa_data, TERM):
     # take list of term sentiment scores by document and make a dataframe
     sa_dict = {'identifier': [], 'sentiment_vals_w_'+TERM: [], 'certainty_vals_'+TERM: [], 'sentiment_vals_unw_'+TERM: []}
     #, 'total_doc_score_'+TERM: []}

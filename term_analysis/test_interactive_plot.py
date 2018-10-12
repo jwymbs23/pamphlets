@@ -9,10 +9,9 @@ top_term_year = pickle.load(open('trending_ratio.pkl', 'rb'))
 df = pd.read_pickle('trending_df.p')
 for year in top_term_year:
     sub_df = df[year[1:] + ['year']]
-    long_df = sub_df.melt('year', var_name='term', value_name='Term Popularity')
+    long_df = sub_df.melt('year', var_name='term', value_name='popularity')
     # define selection
     click = alt.selection_single(fields=['term'])
-
     color = alt.condition(click, alt.Color('term:N', legend=None),
                           alt.value('lightgray'))
 
@@ -21,28 +20,24 @@ for year in top_term_year:
     size = alt.condition(click, alt.value(4),
                           alt.value(1))
     # scatter plots of points
-    scatter = alt.Chart(long_df, height=400, width=600).mark_line().encode(
-        x='year:O',
-        y='Term Popularity:Q',
+    scatter = alt.Chart(long_df).mark_line().encode(
+        x='year:Q',
+        y='popularity:Q',
         color=color,
         opacity=opacity,
         size=size
     )#.transform_filter(
     #    click
     #).interactive()
-
-    scatter.encoding.x.title = 'Year'
     
     # legend
     legend = alt.Chart(long_df).mark_rect().encode(
-        y=alt.Y('term:O', axis=alt.Axis(title='Select a Term:'), sort=[]),#, sort=list(range(len(year)-1))),
-        color=color,
+        y=alt.Y('term:N', axis=alt.Axis(title='Select Origin')),
+        color=color
     ).add_selection(
         click
     )
-
     
-    
-    chart = (legend | scatter)
-    chart.save('trending_'+str(year[0]) + '.json')
+    chart = (scatter | legend)
+    chart.save(str(year[0]) + '.html')
 

@@ -40,7 +40,7 @@ def get_sent_dict(sent_df, terms, guill_year, weight_flag = True, date_range = (
         s_cols = 'sentiment_vals_unw_'
     #s_cols = 'certainty_vals_'
     
-    doc_count_cutoff = 200
+    doc_count_cutoff = 300
     
     # docs_per_year = sent_df.groupby('date').count()
     # print(docs_per_year)
