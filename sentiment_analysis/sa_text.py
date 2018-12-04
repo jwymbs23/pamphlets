@@ -1,7 +1,7 @@
 # from Tkinter import Tk, Text
 import string
 import re
-
+import numpy as np
 import text_cleaning.norvig_spellcheck as spell_check
 from nltk.stem.snowball import SnowballStemmer
 
@@ -60,6 +60,63 @@ def window_size(term_loc, wdist, text_length):
     return l_range, r_range
 
 
+
+
+def passage_spell_check(full_dict, word, top_replacements):
+    
+    def calc_split_prob(substr):
+        #print(substr, np.log(full_dict[substr]*np.log(len(substr)+1)))
+        return np.log(full_dict[substr]*np.log(len(substr)+1))
+    
+    #print(word)
+    
+    
+    def single_spell_correct(word):
+        max_word = word
+        check_set = smart_word_perms([word], top_replacements)
+        check_set = [i for i in check_set if i in full_dict]
+        check_set = smart_word_perms(check_set, top_replacements)
+        check_set = [i for i in check_set if i in full_dict]
+        #print(check_set)
+        #print(check_set)
+        for word_comp in check_set:
+            if full_dict[word_comp] > full_dict[max_word]:
+                max_word = word_comp
+        return max_word
+    
+    def smart_word_perms(words, top_replacements):
+        replaces = []
+        for word in words:
+            splits =  [(word[:i], word[i:]) for i in range(len(word) + 1)]
+            # change to make more that one replacement?
+            for L,R in splits:
+                if R:
+                    try:
+                        rep_list = top_replacements[word[len(L)]]
+                    except:
+                        rep_list = [word[len(L)]]
+                    for c in rep_list:
+                        replaces.extend([L+c+R])
+            #replaces.extend([L + c + R[1:] for L,R in splits if R for c in top_replacements[word[len(L)]]])
+            #print(replaces)
+        return set(replaces)
+                                                    
+
+    
+    split_prob = [(calc_split_prob(single_spell_correct(a)) if a != '' else calc_split_prob(single_spell_correct(b)), calc_split_prob(single_spell_correct(b))) for a,b in [(word[:i], word[i:]) for i in range(len(word))]]
+    score = [s1+s2 for s1,s2 in split_prob]
+    
+    splits = [(single_spell_correct(a),single_spell_correct(b)) for a,b in [(word[:i], word[i:]) for i in range(len(word))]]
+
+    idx_max = np.argmax(score)
+    
+    return splits[idx_max]
+
+
+
+
+
+
 def single_doc(TERM, text, SA_dict, wdist, spell_check_flag,
                example_flag, stem_flag, method):
 
@@ -102,12 +159,18 @@ def single_doc(TERM, text, SA_dict, wdist, spell_check_flag,
                 dist = word_loc - term_loc
                 # perform norvig spell checking (one edit)
                 word = text_split_no_punc[word_loc]
-                if spell_check_flag:
-                    word = spell_check.correction(word)[0]
+
+                #perform spellcheck
+                #if spell_check_flag:
+                #    correct_word_list = passage_spell_check(full_dict, word, top_replacements)
+                #else:
+                #    correct_word_list = [word]
+                    
+                #for word in correct_word_list:
                 passage_words.append(word)
                 if stem_flag:
                     word = stemmer.stem(word)
-
+                
                 # single word score, if word is not in dictionary,
                 # say that it has a score of 0
                 score = 0

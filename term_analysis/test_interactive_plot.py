@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import pandas as pd
 
-from vega_datasets import data
+#from vega_datasets import data
 
 top_term_year = pickle.load(open('trending_ratio.pkl', 'rb'))
 df = pd.read_pickle('trending_df.p')

@@ -10,6 +10,7 @@ from fp_site.new_term import add_new_term
 from fp_site.new_term import new_term_single
 from fp_site.new_term import define_search_params
 from fp_site.new_term import get_doc_list
+#import spellcheck.spellcheck_internal as sp_ch
 import sentiment_analysis.analyze_sa as a_sa
 
 
@@ -21,6 +22,8 @@ import random
 import datetime
 import itertools
 import glob
+import numpy as np
+
 
 import urllib.parse
 from io import BytesIO
@@ -279,7 +282,34 @@ def progress():
     #    return Response("data:"+data+"\nevent:too-few\n\n", mimetype= 'text/event-stream')#render_template("high_frequency_word.html")
     #
     #else:
-    SA_dict = pickle.load(open('./pickles/3_sentiment_dictionary_stem_FEEL.pkl', 'rb'))    
+    SA_dict = pickle.load(open('./pickles/3_sentiment_dictionary_stem_FEEL.pkl', 'rb'))
+
+    #full_dict, modern_dict, map_chars, charlist = sp_ch.load_clean_word_list()
+    
+    
+    
+    ### replacement table
+    #rep_data = pickle.load(open('./spellcheck/rep_table.pkl', 'rb'))
+    #print(rep_data)
+    #rep_table = rep_data['rep_table']
+    #charlist = rep_data['charlist']
+    #try:
+    #    map_chars = rep_data['charmap']
+    #except:
+    #    map_chars = rep_data['map_chars']
+    ####
+    #top_n = 4
+    #top_replacements = {}
+    #for cf, from_letter in enumerate(rep_table):
+    #    sort_idx = np.argsort(from_letter)[::-1]
+    #    #print(from_letter)
+    #    top_rep = [sort_idx[i] for i in range(top_n)]
+    #    #print(top_rep)
+    #    top_replacements[charlist[cf]] = [charlist[char] for char in top_rep]
+                                                                                                            
+    
+    
+    
     return Response(generate(SA_dict, doc_list, term), mimetype= 'text/event-stream')                
             
     #return render_template("add_new_term.html", term=term)

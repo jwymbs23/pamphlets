@@ -27,6 +27,7 @@ from org.apache.lucene.search import IndexSearcher
 import sys
 import sentiment_analysis.sa_text as sa
 import sentiment_analysis.analyze_sa as a_sa
+import spellcheck.spellcheck_internal as sp_ch
 from tqdm import tqdm
 import pickle
 from text_cleaning.stopwords import *
@@ -34,8 +35,7 @@ import glob
 
 
 
-def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):
-    
+def define_search_params(STORE_DIR, FIELD_CONTENTS, TERM):    
     #indexPath = File(STORE_DIR).toPath()
     #indexDir = FSDirectory.open(indexPath)
     
@@ -107,6 +107,32 @@ def main():
 
     example_flag = False
 
+    #full_dict = pickle.load(open('./spellcheck/full_word_list.pkl'), 'rb')
+    
+    full_dict, modern_dict, map_chars, charlist = sp_ch.load_clean_word_list()
+        
+
+
+    ### replacement table
+    rep_data = pickle.load(open('./spellcheck/rep_table.pkl', 'rb'))
+    print(rep_data)
+    rep_table = rep_data['rep_table']
+    charlist = rep_data['charlist']
+    try:
+        map_chars = rep_data['charmap']
+    except:
+        map_chars = rep_data['map_chars']
+        ###
+    top_n = 4
+    top_replacements = {}
+    for cf, from_letter in enumerate(rep_table):
+        sort_idx = np.argsort(from_letter)[::-1]
+        #print(from_letter)
+        top_rep = [sort_idx[i] for i in range(top_n)]
+        #print(top_rep)
+        top_replacements[charlist[cf]] = [charlist[char] for char in top_rep]
+                                                                                                                        
+
     # if not 'sentiment_vals_w_'+TERM in list(doc_data):
     if 1:# not glob.glob('./pickles/%s_df.pkl'%TERM):
         lucene.initVM()
@@ -131,7 +157,7 @@ def main():
             #get the text from each document
             doc_text = doc.get("text")#doc.get("text")#.encode("utf-8")
             #single doc returns the score data for a single document, and a list of words that appear in the term windows for that document
-            score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, window_size, spell_check_flag, example_flag, stem_flag, method)
+            score_data, doc_words = sa.single_doc(TERM,doc_text,SA_dict, full_dict, top_replacements, window_size, spell_check_flag, example_flag, stem_flag, method)
             #print(score_data)
             term_words.append((doc.get(DOC_NAME).split('/')[-1], doc_words))
             sa_doc_score = [doc.get(DOC_NAME)] + score_data

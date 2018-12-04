@@ -27,6 +27,9 @@ from org.apache.lucene.search import IndexSearcher
 import sys
 import sentiment_analysis.sa_text as sa
 import sentiment_analysis.analyze_sa as a_sa
+#import spellcheck.spellcheck_internal as sp_ch
+
+
 from tqdm import tqdm
 import pickle
 from text_cleaning.stopwords import *
@@ -157,6 +160,11 @@ def add_new_term(TERM, docs_containing_term, searcher, reader, remake_df=False, 
 
     example_flag = False
 
+
+    #full_dict, modern_dict, map_chars, charlist = sp_ch.load_clean_word_list()
+    
+    
+    
     # if not 'sentiment_vals_w_'+TERM in list(doc_data):
     if not glob.glob('./pickles/%s_df.pkl'%TERM):
 

@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import pandas as pd
 
-from vega_datasets import data
+#from vega_datasets import data
 
 top_term_year = pickle.load(open('trending_ratio.pkl', 'rb'))
 df = pd.read_pickle('trending_df.p')
@@ -11,7 +11,7 @@ for year in top_term_year:
     sub_df = df[year[1:] + ['year']]
     long_df = sub_df.melt('year', var_name='term', value_name='Term Popularity')
     # define selection
-    click = alt.selection_single(fields=['term'])
+    click = alt.selection_single(fields=['term'], on='click')
 
     color = alt.condition(click, alt.Color('term:N', legend=None),
                           alt.value('lightgray'))
